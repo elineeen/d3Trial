@@ -14,12 +14,10 @@ yarn serve
 ```
 yarn build
 ```
-### try demos online
-```
-[chord official example](https://elineeen.github.io/d3Trial/#/chord1)
-```
+## try demos online
 
-```
-[polar custom brush](https://elineeen.github.io/d3Trial/#/customBrush)
-```
+###[chord official example](https://elineeen.github.io/d3Trial/#/chord1)
+
+###[polar custom brush](https://elineeen.github.io/d3Trial/#/customBrush)
+
 
