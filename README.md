@@ -14,6 +14,12 @@ yarn serve
 ```
 yarn build
 ```
+### try demos online
+```
+[chord official example](https://elineeen.github.io/d3Trial/#/chord1)
+```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+```
+[polar custom brush](https://elineeen.github.io/d3Trial/#/customBrush)
+```
+

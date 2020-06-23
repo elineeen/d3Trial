@@ -13,7 +13,7 @@ Vue.use(VueRouter)
       component:{ render:c=>c("router-view")},
       children:[
           {
-              path: '/cutstomBrush',
+              path: '/customBrush',
               name: 'brush',
               component: customBrush
           },
