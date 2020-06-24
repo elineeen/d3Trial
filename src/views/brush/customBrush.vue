@@ -222,12 +222,10 @@
 
             },
             drawSideGraph() {
-                const {freezeBars,rainBars,cloudBars}=this.scaledData,
-                    extent = this.customWidgets.circularBrush.extent();
+                const   extent = this.customWidgets.circularBrush.extent();
                 let yScale = d3.scaleLinear().domain([-10, 110]).range([100, 0]).clamp(true),
                     xScale = d3.scaleLinear().domain([1, 366]).range([0, 250]),
-                    start = extent[0], end = extent[1],
-                    barOffset = 0, filteredData=[];
+                    start = extent[0], end = extent[1], filteredData=[];
                 if (start < end) {
                     filteredData = nyJson.values.filter(function (d) {
                         return d.index >= start && d.index <= end;
@@ -243,10 +241,6 @@
                     filteredData=filteredData.concat(endData,startData);
                 }
                 var lineWidth = 250 / filteredData.length;
-
-                const minDate = d3.min(filteredData, function (d) {return d.index}),
-                    maxDate = d3.max(filteredData, function (d) {return d.index});
-
                 xScale.domain([0, filteredData.length]);
 
                 d3.select("g.linear")

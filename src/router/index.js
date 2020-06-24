@@ -3,7 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 
 import customBrush from '../views/brush/customBrush'
-import officalCord from '../views/chord/officialExample'
+import officialChord from '../views/chord/officialExample';
+import dependencyChord from '../views/chord/chordDependency'
 Vue.use(VueRouter)
 
   const routes = [
@@ -20,7 +21,12 @@ Vue.use(VueRouter)
           {
               path: '/chord1',
               name: 'chord1',
-              component: officalCord
+              component: officialChord
+          },
+          {
+              path: '/chord2',
+              name: 'chordDependency',
+              component: dependencyChord
           }
       ]
   },

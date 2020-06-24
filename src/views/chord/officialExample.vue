@@ -60,7 +60,7 @@
                     .attr("stroke", "#000")
                     .attr("x2", 6);
                 const formatValue= d3.formatPrefix(",.0", 1e3)
-                const text=tickG    .filter(d => d.value % 5e3 === 0)
+                const text=tickG.filter(d => d.value % 5e3 === 0)
                     .append("text")
                     .attr("x", 8)
                     .attr("dy", ".35em")
