@@ -37,4 +37,7 @@ origin:https://observablehq.com/@d3/hierarchical-edge-bundling
 ```
 layouts(tree/cluster/hierarchy),curves
 ```
-
+###[forceTreeLayout](https://elineeen.github.io/d3Trial/#/layout2)
+```
+layouts(tree/force)
+```
