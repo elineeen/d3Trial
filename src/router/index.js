@@ -6,6 +6,7 @@ import customBrush from '../views/brush/customBrush'
 import officialChord from '../views/chord/officialExample';
 import dependencyChord from '../views/chord/chordDependency'
 import hierarchyCircleLayout from '../views/layouts/hierarchyCircleLayout'
+import forceLayout from '../views/layouts/forceLayout'
 Vue.use(VueRouter)
 
   const routes = [
@@ -33,6 +34,11 @@ Vue.use(VueRouter)
               path: '/layout1',
               name: 'hierarchyCircleLayout',
               component: hierarchyCircleLayout
+          },
+          {
+              path: '/layout2',
+              name: 'forceLayout',
+              component: forceLayout
           }
       ]
   },

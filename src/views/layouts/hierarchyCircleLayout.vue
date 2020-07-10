@@ -12,6 +12,7 @@
                 baseConfig:{
                     width:800,
                     height:800,
+                    color:this.$d3.scaleSequential(this.$d3.interpolateRdYlBu),
                 }
             }
         },
@@ -26,10 +27,10 @@
                  //    .sort((a, b) => this.$d3.ascending(a.height, b.height) || this.$d3.ascending(a.data.name, b.data.name))
             },
             drawTree(){
-                const {width,height}=this.baseConfig,treeData=this.initTreeData();
+                const {width,height,color}=this.baseConfig,treeData=this.initTreeData();
                 //之所以用cluster不用tree是因为cluster所有叶节点都在相同的深度上
                 let cluster= this.$d3.cluster()
-                    //height为360度分割
+                    //height为360度分割，之后作为旋转角度
                     .size([360, width/2 - 100]),
                 treeEL=cluster(treeData);
                 debugger;
@@ -60,11 +61,13 @@
                         .flatMap(leaf => leaf.outgoing)
                     )
                     .join("path")
+
                     .style("mix-blend-mode", "multiply")
-                    //node.path方法，返回两个点之间的路径...用这个路径画曲线，太艹了，把curve属性去掉就知道真相
+                    //node.path方法，返回两点之间的路径...用这个路径画曲线，太艹了，把curve属性去掉就知道真相
                     .attr("d",([i,o])=>{ return curveLine(i.path(o))})
                     //大概是为了响应hover标记用数据？
-                    .each(function(d) { debugger; d.path = this; });
+                    // .each(function(d) { debugger; d.path = this; });
+                debugger;
             },
             createGroupOrigin(){
                 const {width,height}=this.baseConfig;
