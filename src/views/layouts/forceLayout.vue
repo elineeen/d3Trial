@@ -42,6 +42,7 @@
                 const {simulation}=this.simulationData;
                 simulation.tick().restart();
             },
+            //restart只是继续模拟过程，不会重新开始simulation，tick决定下一步simulation的跨度，默认max300
             tickSimulation(){
                 this.simulationData.simulation.tick(10).restart();
             },
@@ -61,13 +62,14 @@
                 const root = this.$d3.hierarchy(_.cloneDeep(forceTreeLayoutData));
                 const links = root.links();
                 const nodes = root.descendants();
-                debugger
+                //初始化模拟参数
                 const simulation = this.$d3.forceSimulation(nodes)
                     .force("link", this.$d3.forceLink(links).id(d => d.id).distance(0).strength(strength))
                     .force("charge", this.$d3.forceManyBody().strength(-50))
                     .force("x", this.$d3.forceX())
                     .force("y", this.$d3.forceY())
                     .stop();
+                //设置监听tick执行变更后停止执行
                 simulation.on("tick", () => {
                     link
                         .transition()

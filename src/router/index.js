@@ -7,6 +7,7 @@ import officialChord from '../views/chord/officialExample';
 import dependencyChord from '../views/chord/chordDependency'
 import hierarchyCircleLayout from '../views/layouts/hierarchyCircleLayout'
 import forceLayout from '../views/layouts/forceLayout'
+import barChart from '../views/commonCharts/barChart'
 Vue.use(VueRouter)
 
   const routes = [
@@ -39,6 +40,11 @@ Vue.use(VueRouter)
               path: '/layout2',
               name: 'forceLayout',
               component: forceLayout
+          },
+          {
+              path: '/barChart',
+              name: 'barChart',
+              component: barChart
           }
       ]
   },

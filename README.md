@@ -27,9 +27,13 @@ origin:https://observablehq.com/@d3/chord-dependency-diagram?collection=@d3/d3-c
 learn how to use arc,path and chord/ribbons
 ```
 ###[polar custom brush](https://elineeen.github.io/d3Trial/#/customBrush)
-origin:https://bl.ocks.org/emeeks/2fffa9abe50ac97603c7
+   origin:https://bl.ocks.org/emeeks/2fffa9abe50ac97603c7
+   ```
+   scales,customWidgets,polar,etc
+   ```
+###[common bars](https://elineeen.github.io/d3Trial/#/barchart)
 ```
-scales,customWidgets,polar,etc
+axis&stack
 ```
 
 ###[hierarchyCircleLayout](https://elineeen.github.io/d3Trial/#/layout1)
