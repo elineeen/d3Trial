@@ -45,3 +45,7 @@ layouts(tree/cluster/hierarchy),curves
 ```
 layouts(tree/force)
 ```
+###[geo](https://elineeen.github.io/d3Trial/#/geoVoronoi)
+```
+geoPath,projections&voronoi
+```

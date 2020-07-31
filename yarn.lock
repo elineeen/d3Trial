@@ -2662,6 +2662,11 @@ d3-array@1.0.1:
   resolved "https://registry.npm.taobao.org/d3-array/download/d3-array-1.0.1.tgz#375c02874fcd96c16ed9f1bcf5b4a7be53f358e7"
   integrity sha1-N1wCh0/NlsFu2fG89bSnvlPzWOc=
 
+d3-array@^2.0:
+  version "2.5.0"
+  resolved "https://registry.npm.taobao.org/d3-array/download/d3-array-2.5.0.tgz?cache=0&sync_timestamp=1596093535703&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fd3-array%2Fdownload%2Fd3-array-2.5.0.tgz#d3f3043aabb75a17e2e78e3723aff4004ede3c5b"
+  integrity sha1-0/MEOqu3Whfi5443I6/0AE7ePFs=
+
 d3-axis@1:
   version "1.0.12"
   resolved "https://registry.npm.taobao.org/d3-axis/download/d3-axis-1.0.12.tgz#cdf20ba210cfbb43795af33756886fb3638daac9"
@@ -2702,6 +2707,13 @@ d3-contour@1:
   integrity sha1-ZSqs1QDSJkyzQjzuENtp9vWb6tM=
   dependencies:
     d3-array "^1.1.1"
+
+d3-delaunay@5:
+  version "5.3.0"
+  resolved "https://registry.npm.taobao.org/d3-delaunay/download/d3-delaunay-5.3.0.tgz#b47f05c38f854a4e7b3cea80e0bb12e57398772d"
+  integrity sha1-tH8Fw4+FSk57POqA4LsS5XOYdy0=
+  dependencies:
+    delaunator "4"
 
 d3-dispatch@1:
   version "1.0.6"
@@ -2762,7 +2774,17 @@ d3-format@1.0.2:
   resolved "https://registry.npm.taobao.org/d3-format/download/d3-format-1.0.2.tgz#138618320b4bbeb43b5c0ff30519079fbbd7375e"
   integrity sha1-E4YYMgtLvrQ7XA/zBRkHn7vXN14=
 
-d3-geo@1:
+d3-geo-voronoi@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.npm.taobao.org/d3-geo-voronoi/download/d3-geo-voronoi-1.6.0.tgz#446348a18c1c999663636c3b6f849a12f2ed247d"
+  integrity sha1-RGNIoYwcmZZjY2w7b4SaEvLtJH0=
+  dependencies:
+    d3-array "^2.0"
+    d3-delaunay "5"
+    d3-geo "^1.0"
+    d3-tricontour "0.1.0"
+
+d3-geo@1, d3-geo@^1.0:
   version "1.12.1"
   resolved "https://registry.npm.taobao.org/d3-geo/download/d3-geo-1.12.1.tgz#7fc2ab7414b72e59fbcbd603e80d9adc029b035f"
   integrity sha1-f8KrdBS3Lln7y9YD6A2a3AKbA18=
@@ -2808,6 +2830,19 @@ d3-scale-chromatic@1:
   dependencies:
     d3-color "1"
     d3-interpolate "1"
+
+d3-scale@1:
+  version "1.0.7"
+  resolved "https://registry.npm.taobao.org/d3-scale/download/d3-scale-1.0.7.tgz?cache=0&sync_timestamp=1596093219088&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fd3-scale%2Fdownload%2Fd3-scale-1.0.7.tgz#fa90324b3ea8a776422bd0472afab0b252a0945d"
+  integrity sha1-+pAySz6op3ZCK9BHKvqwslKglF0=
+  dependencies:
+    d3-array "^1.2.0"
+    d3-collection "1"
+    d3-color "1"
+    d3-format "1"
+    d3-interpolate "1"
+    d3-time "1"
+    d3-time-format "2"
 
 d3-scale@1.0.3:
   version "1.0.3"
@@ -2904,6 +2939,14 @@ d3-transition@1.0.3:
     d3-interpolate "1"
     d3-selection "1"
     d3-timer "1"
+
+d3-tricontour@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npm.taobao.org/d3-tricontour/download/d3-tricontour-0.1.0.tgz#4b4c00b70fa78a126543b85d85a8cdc6a5893ac5"
+  integrity sha1-S0wAtw+nihJlQ7hdhajNxqWJOsU=
+  dependencies:
+    d3-delaunay "5"
+    d3-scale "1"
 
 d3-voronoi@1:
   version "1.1.4"
@@ -3081,6 +3124,11 @@ del@^4.1.1:
     p-map "^2.0.0"
     pify "^4.0.1"
     rimraf "^2.6.3"
+
+delaunator@4:
+  version "4.0.1"
+  resolved "https://registry.npm.taobao.org/delaunator/download/delaunator-4.0.1.tgz#3d779687f57919a7a418f8ab947d3bddb6846957"
+  integrity sha1-PXeWh/V5GaekGPirlH073baEaVc=
 
 delayed-stream@~1.0.0:
   version "1.0.0"

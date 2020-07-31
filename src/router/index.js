@@ -8,6 +8,7 @@ import dependencyChord from '../views/chord/chordDependency'
 import hierarchyCircleLayout from '../views/layouts/hierarchyCircleLayout'
 import forceLayout from '../views/layouts/forceLayout'
 import barChart from '../views/commonCharts/barChart'
+import geoVoronoi from '../views/geo/voronoi'
 Vue.use(VueRouter)
 
   const routes = [
@@ -45,6 +46,11 @@ Vue.use(VueRouter)
               path: '/barChart',
               name: 'barChart',
               component: barChart
+          },
+          {
+              path: '/geoVoronoi',
+              name: 'geoVoronoi',
+              component: geoVoronoi
           }
       ]
   },
