@@ -51,7 +51,7 @@ Vue.use(VueRouter)
               path: '/geoVoronoi',
               name: 'geoVoronoi',
               component: geoVoronoi
-          }
+          },
       ]
   },
   {
