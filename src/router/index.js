@@ -9,6 +9,7 @@ import hierarchyCircleLayout from '../views/layouts/hierarchyCircleLayout'
 import forceLayout from '../views/layouts/forceLayout'
 import barChart from '../views/commonCharts/barChart'
 import geoVoronoi from '../views/geo/voronoi'
+import collisionDetection from '../views/force/collision-detection'
 Vue.use(VueRouter)
 
   const routes = [
@@ -51,6 +52,11 @@ Vue.use(VueRouter)
               path: '/geoVoronoi',
               name: 'geoVoronoi',
               component: geoVoronoi
+          },
+          {
+              path: '/collision',
+              name: 'collision',
+              component: collisionDetection
           },
       ]
   },

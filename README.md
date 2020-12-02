@@ -49,3 +49,9 @@ layouts(tree/force)
 ```
 rotatable geoVoronoi Map in svg, using geoPath,projections&voronoi
 ```
+
+### [particleCollision](https://elineeen.github.io/d3Trial/#/collision)
+origin:https://observablehq.com/@d3/collision-detection/2
+```
+simulation in svg mode (if u prefer canvas u can try the official demo)
+```
