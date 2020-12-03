@@ -54,7 +54,6 @@
                 }
             },
             _pointed(){
-                debugger
                 const {width,height}=this.baseConfig;
                 const {offsetX, offsetY} = this.$d3.event;
                 this.nodeList[0].fx = offsetX - width / 2;
@@ -100,6 +99,7 @@
                 this.simulationData={nodes,simulation}
             },
             initData(){
+
                 let {width}=this.baseConfig
                 const k = width / 200;
                 const r = this.$d3.randomUniform(k, k * 4);
