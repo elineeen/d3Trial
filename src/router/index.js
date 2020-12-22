@@ -11,6 +11,7 @@ import barChart from '../views/commonCharts/barChart'
 import geoVoronoi from '../views/geo/voronoi'
 import collisionDetection from '../views/force/collision-detection'
 import USAWindMap from '../views/geo/wind'
+import USAWindMapCanvas from '../views/geo/windCanvas'
 Vue.use(VueRouter)
 
   const routes = [
@@ -60,9 +61,14 @@ Vue.use(VueRouter)
               component: collisionDetection
           },
           {
-              path: '/wind',
+              path: '/windSVG',
               name: 'USAWindMap',
               component: USAWindMap
+          },
+          {
+              path: '/windCanvas',
+              name: 'USAWindMapCanvas',
+              component: USAWindMapCanvas
           },
       ]
   },

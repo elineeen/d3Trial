@@ -1,10 +1,11 @@
-export const Particle = function(x, y, age) {
+export const Particle = function(x, y, age,v) {
     this.x = x;
     this.y = y;
     this.oldX = -1;
     this.oldY = -1;
     this.age = age;
     this.rnd = Math.random();
+    this.v=v
 }
 
 /**
@@ -104,8 +105,6 @@ VectorField.read = function(data, correctForSphere) {
         }
     }
     var result = new VectorField(field, data.x0, data.y0, data.x1, data.y1);
-    //window.console.log('total = ' + total);
-    //window.console.log('weight = ' + weight);
     if (total && weight) {
 
         result.averageLength = total / weight;
@@ -119,14 +118,12 @@ VectorField.prototype.inBounds = function(x, y) {
 
 
 VectorField.prototype.bilinear = function(coord, a, b) {
-    debugger;
     var na = Math.floor(a);
     var nb = Math.floor(b);
     var ma = Math.ceil(a);
     var mb = Math.ceil(b);
     var fa = a - na;
     var fb = b - nb;
-    debugger;
     if(this.field[na])
         return this.field[na][nb][coord] * (1 - fa) * (1 - fb) +
         this.field[ma][nb][coord] * fa * (1 - fb) +
@@ -169,7 +166,7 @@ VectorField.constant = function(dx, dy, x0, y0, x1, y1) {
  * Simple representation of 2D vector.
  */
 
-var Vector = function(x, y) {
+export const Vector = function(x, y) {
     this.x = x;
     this.y = y;
 }

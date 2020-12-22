@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-row>
-            you can change the simulation config to perform different behaviors of these particles
+            you can change the simulation config to perform different behaviors with these particles
         </v-row>
         <v-row >
             <v-btn text  small @click="setMode('followMode')">setFollowMode</v-btn>
@@ -99,7 +99,6 @@
                 this.simulationData={nodes,simulation}
             },
             initData(){
-
                 let {width}=this.baseConfig
                 const k = width / 200;
                 const r = this.$d3.randomUniform(k, k * 4);
