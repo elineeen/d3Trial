@@ -10,6 +10,7 @@ import forceLayout from '../views/layouts/forceLayout'
 import barChart from '../views/commonCharts/barChart'
 import geoVoronoi from '../views/geo/voronoi'
 import collisionDetection from '../views/force/collision-detection'
+import USAWindMap from '../views/geo/wind'
 Vue.use(VueRouter)
 
   const routes = [
@@ -57,6 +58,11 @@ Vue.use(VueRouter)
               path: '/collision',
               name: 'collision',
               component: collisionDetection
+          },
+          {
+              path: '/wind',
+              name: 'USAWindMap',
+              component: USAWindMap
           },
       ]
   },
