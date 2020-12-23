@@ -13,7 +13,7 @@
             return{
                 baseConfig:{
                     width:1000,
-                    height:1000,
+                    height:800,
                     projection:null,
                     path:null,
                     totalParticles:3000,
@@ -56,6 +56,7 @@
                         simulation.stop();
                     });
                 this.$d3.interval(()=>{
+                    // this.drawArea();
                     //重新计算每个点是否在边界与生命周期内，否则重新生成新粒子
                     for (let i = 0; i < this.remote.particles.length; i++) {
                         let p = this.remote.particles[i];
@@ -108,7 +109,8 @@
             initPath(){
                 const {width,height}=this.baseConfig;
                 const projection = this.$d3.geoAlbersUsa()
-                    .scale(width).translate([487.5,305])
+                    //没看懂他原来的手写投影的偏移，只能自己大概写写套一套
+                    .scale(width).translate([487.5,255])
                 this.baseConfig.projection=projection;
                 this.baseConfig.path=this.$d3.geoPath(projection);
             },
@@ -117,6 +119,7 @@
                 this.createOrigin().append("path")
                     .datum(topojson.feature(usaTopoJson, usaTopoJson.objects.nation))
                     .attr("fill", "#000")
+                    .attr('fill-opacity','1')
                     .attr("d", this.$d3.geoPath());
             },
             //svg背景要去除fill，否则会有黑边
@@ -154,10 +157,6 @@
                             if (++safecount > 10 || !(sx < 0 || sy < 0 || sx > width || sy > height)) {
                                 return new Particle(x, y, 1 + 40 * Math.random(),v);
                             }
-                            // else{
-                            //    debugger;
-                            // }
-
                         }
                     }
                 }

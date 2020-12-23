@@ -55,3 +55,12 @@ origin:https://observablehq.com/@d3/collision-detection/2
 ```
 simulation in svg mode (if u prefer canvas u can try the official demo)
 ```
+
+### [USAWindMap](https://elineeen.github.io/d3Trial/#/windCanvas)
+origin:https://observablehq.com/@d3/collision-detection/2
+```
+simulation in canvas mode (the desgin and idea of this work is genuis and fairly hard to be painted in svg due to its performance in massive particles,
+ i also make some effort at first and you can see the effect below )
+```
+[demo in svg](https://elineeen.github.io/d3Trial/#/wind)
+origin:http://hint.fm/wind/
