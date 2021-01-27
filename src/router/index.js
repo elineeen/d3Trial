@@ -12,6 +12,7 @@ import geoVoronoi from '../views/geo/voronoi'
 import collisionDetection from '../views/force/collision-detection'
 import USAWindMap from '../views/geo/wind'
 import USAWindMapCanvas from '../views/geo/windCanvas'
+import compositeSakura from '../views/chord/sakura'
 Vue.use(VueRouter)
 
   const routes = [
@@ -70,6 +71,12 @@ Vue.use(VueRouter)
               name: 'USAWindMapCanvas',
               component: USAWindMapCanvas
           },
+          {
+              path: '/compositeSakura',
+              name: 'compositeSakura',
+              component: compositeSakura
+          },
+
       ]
   },
   {

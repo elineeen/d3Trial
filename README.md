@@ -21,7 +21,7 @@ yarn build
 ### [chord official example](https://elineeen.github.io/d3Trial/#/chord1)
 origin:https://observablehq.com/@d3/chord-diagram
 
-[chord dependency example](https://elineeen.github.io/d3Trial/#/chord2)
+### [chord dependency example](https://elineeen.github.io/d3Trial/#/chord2)
 origin:https://observablehq.com/@d3/chord-dependency-diagram?collection=@d3/d3-chord
 ```
 learn how to use arc,path and chord/ribbons
@@ -63,5 +63,5 @@ simulation in canvas mode (the desgin and idea of this work is genius
 and fairly hard to be painted in svg due to its performance in massive particles,
 i also make some effort at first and you can see the effect below )
 ```
-[demo in svg](https://elineeen.github.io/d3Trial/#/wind)
+[demo in svg](https://elineeen.github.io/d3Trial/#/windSVG)
 

@@ -83,6 +83,8 @@
                 const {color,innerRadius}=this.baseConfig,{chordAdapter}=this.dataAdapter,
                     ribbon = d3.ribbon()
                         .radius(innerRadius)
+                console.dir(chordAdapter(officialChordData))
+                debugger;
                 this.createGroupOrigin()
                     .attr("fill-opacity", 0.67)
                     .selectAll("path")
