@@ -195,6 +195,7 @@
                         this.toggleAnnotation(false)
                     });
                 return {relationRibbon,chordRing,chordRingDot}
+
             },
             initChapterRing(){
                 //章节标签数据准备
