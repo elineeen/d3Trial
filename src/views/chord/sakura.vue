@@ -11,17 +11,15 @@
     import * as d3 from "d3";
     import { observable } from '@nx-js/observer-util';
     import {annotationLabel,annotation} from "d3-svg-annotation";
+    import {baseConfig} from "../brush/d3ChartData";
     export default {
         name: "sakura",
         data(){
             return {
                 control:{
-                  customObservers:observable({mouseout:false}),
+                    customObservers:observable({mouseout:false}),
                 },
                 baseConfig:{
-                    // color:d3.scaleOrdinal()
-                    //     .domain(d3.range(4))
-                    //     .range(["#000000", "#FFDD89", "#957244", "#F26223"]),
                     width:1200,
                     height:1200
                 },
@@ -36,6 +34,11 @@
                         chordRing:null,
                         relationRibbon:null,
                         annotationGroup:null,
+                    },
+                    outerRelationRing:{
+                        ringCapsule:null,
+                        ringCapsuleNum:null,
+                        outerRelationGroup:null,
                     }
                 }
             }
@@ -65,11 +68,12 @@
             }
         },
         methods:{
-            createGroupOrigin(layerName){
+            createGroupOrigin(layerName,needTransform=true){
                 const {width,height}=this.baseConfig;
                 let origin=this.$d3.select("svg")
                     .append("g")
-                    .attr('transform',`translate(${width/2},${height/2})`);
+                if(needTransform)
+                    origin.attr('transform',`translate(${width/2},${height/2})`);
                 if(layerName)
                     origin.attr('class',layerName)
                 return origin;
@@ -112,7 +116,7 @@
                         annotationGroup.selectAll(".annotation").remove();
                 }
             },
-            dispatchMouseoverRelation(d,i){
+            dispatchMouseoverInnerRelation(d,i){
                 let {relationRibbon}=this.graphInstance.relationChord,
                     hoveredNode=relationRibbon.filter(d=>d===i);
                 relationRibbon.attr("fill-opacity", 0.1)
@@ -130,7 +134,7 @@
                     ]);
                 _.assign(this.rawData,{charaDataList,relationList,chapterList,character2ChapterRelationList});
             },
-            async initRelationChord(){
+            initRelationChord(){
                 let {innerRadius,outerRadius,relationRibbonColor}=this.relationChordConfig,
                     {charaDataList,relationList}=this.rawData;
                 let ringData=this.$d3.pie().value(d=>d.num_chapters).padAngle(0.05).sort(null)(charaDataList),
@@ -159,7 +163,7 @@
                     .attr('class','relation-chord')
                     .attr("fill", d => d.data.color)
                     .attr('d',wrapArc);
-                chordRing
+                const chordRingDot=chordRing
                     .append("circle")
                     .attr("class", "ring-dot")
                     .attr("cx",  (d)=> { return outerRadius*1.2 * Math.cos(d.centralDegree - Math.PI/2); })
@@ -167,7 +171,13 @@
                     .attr("r", 6 )
                     .style("fill", d=>d.data.color)
                     .style("stroke", "white")
-                    .style("stroke-width", 3 );
+                    .style("stroke-width", 3 )
+                    .on("mouseover", this.dispatchGenerateOuterRelationLines)
+                    .on("mouseout", ()=>{
+                        let instance=this.graphInstance.outerRelationRing.outerRelationGroup;
+                        if(instance)
+                            instance.selectAll('path').remove()
+                    });
                 const relationRibbon=this.createGroupOrigin('relation-chord-ribbon')
                     .attr("fill-opacity", 0.5)
                     .selectAll('g')
@@ -178,13 +188,13 @@
                     // .attr('stroke',d=>this.$d3.rgb(relationRibbonColor(d.type)).darker())
                     .attr('class','relation-ribbon')
                     .attr('d',innerRibbon)
-                    .on("mouseover", this.dispatchMouseoverRelation)
-                    // .on("click", this.dispatchMouseoverRelation)
+                    .on("mouseover", this.dispatchMouseoverInnerRelation)
+                    // .on("click", this.dispatchMouseoverInnerRelation)
                     .on("mouseout", ()=>{
                         relationRibbon.attr("fill-opacity", 0.5)
                         this.toggleAnnotation(false)
                     });
-                return {relationRibbon,chordRing}
+                return {relationRibbon,chordRing,chordRingDot}
             },
             initChapterRing(){
                 //章节标签数据准备
@@ -196,15 +206,15 @@
                 });
                 //Based on typical hierarchical clustering example
                 let root = this.$d3.stratify()
-                    .id(function (d) { return d.name; })
-                    .parentId(function (d) { return d.parent; })
-                    (chapterHierarchyDataList),
+                        .id(function (d) { return d.name; })
+                        .parentId(function (d) { return d.parent; })
+                        (chapterHierarchyDataList),
 
                     clusterLayoutAdapter = this.$d3.cluster()
-                    .size([360, centerRadius])
-                    .separation(function separation(a, b) {
-                        return a.parent === b.parent ? 1 : 1.3;
-                    });
+                        .size([360, centerRadius])
+                        .separation(function separation(a, b) {
+                            return a.parent === b.parent ? 1 : 1.3;
+                        });
                 clusterLayoutAdapter(root);
                 let chapterLocationData = root.leaves();
                 chapterLocationData.forEach(function (d, i) {
@@ -229,7 +239,7 @@
                     .data(chapterLocationData)
                     .join('g');
                 //圈
-                chapterRingGroup
+                const ringCapsule=chapterRingGroup
                     .append("path")
                     .attr("class", "arc")
                     .attr("d", capsuleAdapter)
@@ -237,7 +247,7 @@
                     .style("stroke", "#c4c4c4")
                     .style("stroke-width", 1 );
                 //数字
-                chapterRingGroup
+                const ringCapsuleNum=chapterRingGroup
                     .append("text")
                     .attr("class", "chapter-number")
                     .style("text-anchor", "middle")
@@ -250,15 +260,154 @@
                     })
                     .style("font-size", "9px")
                     .text((d,i)=>i+1);
+                return {ringCapsule,ringCapsuleNum}
             },
-            generateRelationCurves(selectedCharacter){
+            dispatchGenerateOuterRelationLines(d,i){
+                let {character2ChapterRelationList}=this.rawData,
+                    {ringCapsule}=this.graphInstance.outerRelationRing
+                let filteredRelationList=character2ChapterRelationList.filter((d)=>{
+                    return d.character===i.data.character
+                })
+                let relationDataList=filteredRelationList.map((d)=>{
+                    let match=ringCapsule.filter((capsuleData)=>capsuleData.data.num===d.chapter)
+                    return {target:match.datum(),source:i}
+                })
+                //key
 
+                this.graphInstance.outerRelationRing.outerRelationGroup=this.generateCurves(relationDataList,d.currentTarget.attributes)
+            },
+            generateCurves(relationDataList,startPointAttr){
+                let innerRingRadius=this.relationChordConfig.outerRadius*1.2;
+                let outerRingRaidius=this.chapterRingConfig.innerRadius;
+                let {width,height}=this.baseConfig;
+                //该折线分为三段，一段从点到拐点，二段为从拐点到目标角度（目测为目标startend）附近的一段arc，最后为一段为弧度终点到capsule中间位置的一段直线
+                let offsetDistance=outerRingRaidius-innerRingRadius;
+                //峰式scale
+                let firstLineRadiusScale=this.$d3.scaleLinear(
+                    [-Math.PI,0,Math.PI],
+                    [offsetDistance*0.1+innerRingRadius,offsetDistance*0.9+innerRingRadius,offsetDistance*0.1+innerRingRadius]
+                );
+                let firstLineAngleScale=this.$d3.scaleLinear([-Math.PI,Math.PI],[Math.PI/8,-Math.PI/8]);
+                let firstCurveList=relationDataList.map((relationObj)=>{
+                    let {source,target}=relationObj
+                    //考虑source永远大于target
+                    let offsetAngle=(source.centralDegree-target.centerAngle);
+                    //offset是个-2pi-2pi之间的值，-pi到pi之间可以保留，超出的值要进行处理
+                    // 超过180度的应转成负值
+                    if(offsetAngle>Math.PI)
+                        offsetAngle=offsetAngle-Math.PI*2;
+                    if(offsetAngle<-Math.PI)
+                        offsetAngle=Math.PI*2+offsetAngle;
+                    let inflectionArcStartPointAngle=source.centralDegree+firstLineAngleScale(offsetAngle);
+                    let inflectionPointRadius=firstLineRadiusScale(offsetAngle)
+                    //curveAngle为加上偏移值的最终值，范围应在0-2pi，如果超过则进行处理
+                    if(inflectionArcStartPointAngle>Math.PI*2)
+                        inflectionArcStartPointAngle=inflectionArcStartPointAngle-Math.PI*2;
+                    if(inflectionArcStartPointAngle<0)
+                        inflectionArcStartPointAngle=inflectionArcStartPointAngle+Math.PI*2;
+                    const position=this.getAnglePosition(offsetAngle);
+                    //相对位置在左侧则贴近endAngle，在右侧则贴近startAngle
+                    let inflectionArcEndPointAngle=position==='left'?target.endAngle:target.startAngle
+                    //及其极端的情况，起始角度在capsule位置内，则指向中心
+                    if(this.isInCapsuleAngleRange(target.startAngle,target.endAngle,inflectionArcStartPointAngle)){
+                        inflectionArcEndPointAngle=target.centerAngle;
+                    }
+
+                    //最后一段从弧度拐点到目标capsule的弧线
+                    const inflectionArc2TargetAdapter=this.$d3.lineRadial()
+                    ([
+                        [inflectionArcEndPointAngle,inflectionPointRadius],
+                        [target.centerAngle,outerRingRaidius]
+                    ])
+                    return {
+                        ...relationObj,
+                        inflectionPointRadius,//arc弧度
+                        inflectionArcStartPointAngle,//arc拐点起点角度
+                        inflectionArcEndPointAngle,//arc拐点终点角度
+                        inflectionArc2TargetAdapter,//arc拐点终点到capsule的line adapter
+                        position //target相对于source 偏移方向
+                    };
+                })
+                debugger;
+                let pathAdapter=firstCurveList.map((d)=>{
+                    let path= this.$d3.path()
+                    //d3的角度计算和canvas角度计算差90度,且角度相反.......
+                    path.moveTo(parseFloat(startPointAttr.cx.nodeValue)+width/2,parseFloat(startPointAttr.cy.nodeValue)+height/2);
+                    path.arc(width/2,height/2,d.inflectionPointRadius,d.inflectionArcStartPointAngle-Math.PI/2, d.inflectionArcEndPointAngle-Math.PI/2,
+                        d.position === 'left');
+                    return [path.toString(),d.inflectionArc2TargetAdapter,d.source.data.color]
+                })
+                const outerRelationGroup=this.createGroupOrigin('outer-relaton-path-group',false)
+                    .selectAll('outer-relaton-path')
+                    .data(pathAdapter)
+                    .join('g')
+                outerRelationGroup
+                    .append('path')
+                    .attr("stroke-opacity", 0.5)
+                    .style("stroke", d=>d[2])
+                    .style("stroke-width", 3)
+                    // .style("stroke", (d,i)=>{ return i>8&&i<10?'black':'white'})
+                    .style("fill", "none")
+                    .attr('d',d=>d[0])
+                outerRelationGroup
+                    .append('path')
+                    .style("fill", "none")
+                    .attr("stroke-opacity", 0.5)
+                    .attr('transform',`translate(${width/2},${height/2})`)
+                    .style("stroke", d=>d[2])
+                    .style("stroke-width", 3)
+                    // .style("stroke", (d,i)=>{ return i<3?'black':'white'})
+                    .attr('d',d=>d[1]);
+                debugger;
+                return outerRelationGroup;
+            },
+            getSrc2TargetPosition(source,target,offsetAngle){
+                let {startAngle,endAngle}=target,{centralDegree}=source;
+                if(this.isInCapsuleAngleRange(startAngle,endAngle,centralDegree))
+                    return this.getRelativePosition(startAngle,endAngle,centralDegree)
+                else
+                    return this.getAnglePosition(offsetAngle)
+            },
+            /**
+             *根据偏移角度计算是在左侧还是右侧
+             * @param offsetAngle
+             * @returns {string}
+             */
+            getAnglePosition(offsetAngle){
+                let position='';
+                if(offsetAngle>0&&offsetAngle<Math.PI)
+                    position='left';
+                else if(offsetAngle<-Math.PI)
+                    position='left';
+                else if(offsetAngle>Math.PI)
+                    position='right'
+                else if(offsetAngle<0&&offsetAngle>-Math.PI)
+                    position="right"
+                return position
+            },
+            /**
+             * 特殊情况计算相对位置
+             */
+            getRelativePosition(startAngle,endAngle,centralDegree){
+                let [lOffset,rOffset]=[centralDegree-startAngle,endAngle-centralDegree].map((d)=>{
+                    return d>=0?d:d+Math.PI*2
+                })
+                return lOffset>rOffset?'right':'left'
+            },
+            /**
+             * 某些极端情况，需要改变position值，判断是否该点角度是否位于capsule angle范围内
+             */
+            isInCapsuleAngleRange(startAngle,endAngle,centerAngle){
+                if(endAngle<startAngle)
+                    return  centerAngle<startAngle||centerAngle>endAngle
+                else
+                    return centerAngle>=startAngle&&centerAngle<=endAngle
             }
         },
         async mounted() {
             await this.initRawData();
-            this.initRelationChord().then(instance=>{this.graphInstance.relationChord=instance})
-            this.initChapterRing();
+            this.graphInstance.relationChord=this.initRelationChord()
+            this.graphInstance.outerRelationRing=this.initChapterRing()
         }
 
     }
