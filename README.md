@@ -65,3 +65,9 @@ i also make some effort at first and you can see the effect below )
 ```
 [demo in svg](https://elineeen.github.io/d3Trial/#/windSVG)
 
+### [anime Sakura](https://elineeen.github.io/d3Trial/#/compositeSakura)
+origin:https://cardcaptorsakura.visualcinnamon.com
+```
+chracter-chaper relation graph about sakura anime with d3 chord ribbons & fasinate customized relation lines.
+I omitted some annotaiton texts and outer ring elements, so u'd better try the origin ones first to figure out how it works
+```
