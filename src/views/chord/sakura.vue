@@ -1,17 +1,24 @@
 <template>
-    <v-row type="flex" justify="center">
-        <svg class="circular-graph" :width=baseConfig.width :height=baseConfig.height></svg>
-    </v-row>
+    <v-container>
+        <v-row type="flex" justify="center">
+            <v-col cols="3">
+                i didn't add much info about this graph but focus on its mechanics on the relation lines,
+                so u should check the <a href="https://cardcaptorsakura.visualcinnamon.com/" rel="noreferrer" >origin site </a> to see how it's works
+                hover on the chapter capsule or inner ring to see different relations
+            </v-col>
+            <v-col cols="9">
+                <svg :width=baseConfig.width :height=baseConfig.height></svg>
+            </v-col>
+        </v-row>
+    </v-container>
+
 
 </template>
 
 <script>
+    import {observable} from '@nx-js/observer-util';
+    import {annotation, annotationLabel} from "d3-svg-annotation";
 
-
-    import * as d3 from "d3";
-    import { observable } from '@nx-js/observer-util';
-    import {annotationLabel,annotation} from "d3-svg-annotation";
-    import {baseConfig} from "../brush/d3ChartData";
     export default {
         name: "sakura",
         data(){
@@ -20,14 +27,15 @@
                     customObservers:observable({mouseout:false}),
                 },
                 baseConfig:{
-                    width:1200,
-                    height:1200
+                    width:900,
+                    height:900
                 },
                 rawData:{
                     charaDataList:[],
                     relationDataList:[],
                     chapterList:[],
-                    character2ChapterRelationList:[]
+                    character2ChapterRelationList:[],
+                    coverRelationList:[]
                 },
                 graphInstance:{
                     relationChord:{
@@ -36,10 +44,12 @@
                         annotationGroup:null,
                     },
                     outerRelationRing:{
-                        ringCapsule:null,
+                        chapterRingGroup:null,
+                        capsuleRing:null,
                         ringCapsuleNum:null,
                         outerRelationGroup:null,
-                    }
+                        relationDataList:null,
+                    },
                 }
             }
         },
@@ -55,7 +65,6 @@
                 }
             },
             /**
-             *
              * @returns {{outerRadius: number, centerRadius: number, innerRadius: number}}
              */
             chapterRingConfig(){
@@ -124,15 +133,16 @@
                 this.toggleAnnotation(true,i.relationData)
             },
             async initRawData(){
-                let [charaDataList,relationList,chapterList,character2ChapterRelationList]=await Promise.all (
+                let [charaDataList,relationList,chapterList,character2ChapterRelationList,coverRelationList]=await Promise.all (
                     [
                         this.$d3.csv('./sakuraData/ccs_character_total.csv'),
                         this.$d3.csv('./sakuraData/ccs_character_relations.csv'),
                         this.$d3.json('./sakuraData/ccs_chapter_hierarchy.json'),
                         this.$d3.json('./sakuraData/ccs_character_per_chapter.json'),
+                        this.$d3.json('./sakuraData/ccs_character_per_chapter_cover.json'),
 
                     ]);
-                _.assign(this.rawData,{charaDataList,relationList,chapterList,character2ChapterRelationList});
+                _.assign(this.rawData,{charaDataList,relationList,chapterList,character2ChapterRelationList,coverRelationList});
             },
             initRelationChord(){
                 let {innerRadius,outerRadius,relationRibbonColor}=this.relationChordConfig,
@@ -140,9 +150,9 @@
                 let ringData=this.$d3.pie().value(d=>d.num_chapters).padAngle(0.05).sort(null)(charaDataList),
                     ringCentralMap=new Map();
                 ringData.forEach((pieData)=>{
-                    let {startAngle,endAngle}=pieData,centralDegree=(startAngle+endAngle)/2
-                    pieData.centralDegree=centralDegree;
-                    ringCentralMap.set(pieData.data.character,{startAngle:centralDegree-0.02,endAngle:centralDegree+0.02})
+                    let {startAngle,endAngle}=pieData,centerAngle=(startAngle+endAngle)/2
+                    pieData.centerAngle=centerAngle;
+                    ringCentralMap.set(pieData.data.character,{startAngle:centerAngle-0.02,endAngle:centerAngle+0.02})
                 })
                 let ribbonData=relationList.map((relationData)=>{
                     let {type}=relationData
@@ -157,7 +167,9 @@
                 const chordRing=this.createGroupOrigin('character-ring')
                     .selectAll('g')
                     .data(ringData)
-                    .join('g');
+                    .join('g')
+                    .on("mouseover", this.dispatchCharacter2ChapterLines)
+                    .on("mouseout", this.clearOuterRelations);
                 chordRing
                     .append('path')
                     .attr('class','relation-chord')
@@ -166,18 +178,13 @@
                 const chordRingDot=chordRing
                     .append("circle")
                     .attr("class", "ring-dot")
-                    .attr("cx",  (d)=> { return outerRadius*1.2 * Math.cos(d.centralDegree - Math.PI/2); })
-                    .attr("cy",  (d)=> { return outerRadius*1.2 * Math.sin(d.centralDegree - Math.PI/2); })
+                    .attr("cx",  (d)=> { return outerRadius*1.2 * Math.cos(d.centerAngle - Math.PI/2); })
+                    .attr("cy",  (d)=> { return outerRadius*1.2 * Math.sin(d.centerAngle - Math.PI/2); })
                     .attr("r", 6 )
                     .style("fill", d=>d.data.color)
                     .style("stroke", "white")
                     .style("stroke-width", 3 )
-                    .on("mouseover", this.dispatchGenerateOuterRelationLines)
-                    .on("mouseout", ()=>{
-                        let instance=this.graphInstance.outerRelationRing.outerRelationGroup;
-                        if(instance)
-                            instance.selectAll('path').remove()
-                    });
+
                 const relationRibbon=this.createGroupOrigin('relation-chord-ribbon')
                     .attr("fill-opacity", 0.5)
                     .selectAll('g')
@@ -185,11 +192,9 @@
                     .join('path')
                     .attr('class','relation-ribbon')
                     .attr('fill',d=>relationRibbonColor(d.type))
-                    // .attr('stroke',d=>this.$d3.rgb(relationRibbonColor(d.type)).darker())
                     .attr('class','relation-ribbon')
                     .attr('d',innerRibbon)
                     .on("mouseover", this.dispatchMouseoverInnerRelation)
-                    // .on("click", this.dispatchMouseoverInnerRelation)
                     .on("mouseout", ()=>{
                         relationRibbon.attr("fill-opacity", 0.5)
                         this.toggleAnnotation(false)
@@ -238,19 +243,22 @@
                 let chapterRingGroup = this.createGroupOrigin("chapter-ring-group")
                     .selectAll(".chapter-hover-arc")
                     .data(chapterLocationData)
-                    .join('g');
+                    .join('g')
+                    .on('mouseover',this.dispatchChapter2CharacterLines)
+                    .on("mouseout", this.clearOuterRelations);
                 //圈
-                const ringCapsule=chapterRingGroup
+                const capsuleRing=chapterRingGroup
                     .append("path")
-                    .attr("class", "arc")
+                    .attr("class", "chapter-capsule")
                     .attr("d", capsuleAdapter)
-                    .style("fill", "none")
+                    .style("fill", "white")
                     .style("stroke", "#c4c4c4")
                     .style("stroke-width", 1 );
                 //数字
                 const ringCapsuleNum=chapterRingGroup
                     .append("text")
                     .attr("class", "chapter-number")
+                    .attr("cursor", "default")
                     .style("text-anchor", "middle")
                     .attr("dy", ".35em")
                     .attr("transform", (d, i)=>{
@@ -261,23 +269,117 @@
                     })
                     .style("font-size", "9px")
                     .text((d,i)=>i+1);
-                return {ringCapsule,ringCapsuleNum}
+                //接点
+                const ringCapsuleDot=chapterRingGroup
+                    .append("circle")
+                    .attr("class", "chapter-dot")
+                    .attr("cx", function (d) { return innerRadius * Math.cos(d.centerAngle - Math.PI/2); })
+                    .attr("cy", function (d) { return innerRadius * Math.sin(d.centerAngle - Math.PI/2); })
+                    .attr("r", 2)
+                    .style("fill", "#c4c4c4")
+                    .style("stroke", "white")
+                    .style("stroke-width", 2 * 0.5);
+                return {capsuleRing,ringCapsuleNum,chapterRingGroup}
             },
-            dispatchGenerateOuterRelationLines(d,i){
+            clearOuterRelations(enableCover=true){
+                let {outerRelationGroup,relationDataList}=this.graphInstance.outerRelationRing;
+                if(outerRelationGroup){
+                  this.$d3.select('svg').selectAll('.outer-relaton-path-group').remove();
+                }
+                if(relationDataList)
+                    this.invertCapsuleStyles(relationDataList,false);
+                if(enableCover){
+                    //重绘cover
+                    this.dispatchGenerateCoverRelation();
+                    this.$d3.select('svg').selectAll('.outer-relaton-path-group')
+                        .attr("opacity", 0.5)
+                }
+            },
+            dispatchChapter2CharacterLines(d,i){
+                this.clearOuterRelations(false);
+                let circleElementInstance=d.currentTarget.lastChild
+                let {character2ChapterRelationList}=this.rawData, {chordRing}=this.graphInstance.relationChord;
+                let filteredRelationList=character2ChapterRelationList.filter((d)=>{
+                    return d.chapter===i.data.num
+                })
+                let relationDataList=filteredRelationList.map((d)=>{
+                    let match=chordRing.filter((characterData)=>characterData.data.character===d.character)
+                    return {target:match.datum(),source:i}
+                })
+                this.graphInstance.outerRelationRing.relationDataList=relationDataList;
+                this.graphInstance.outerRelationRing.outerRelationGroup=this.generateChapter2CharaCurves(relationDataList,circleElementInstance.attributes)
+
+                // let {chapterRingGroup} = this.graphInstance.outerRelationRing
+                // debugger;
+                // const selectedG=chapterRingGroup.filter(node=>node===i)
+                // selectedG
+                //     .selectAll('.chapter-capsule')
+                //     .style('fill',d=>doInvert?(relationWeakMap.get(d)?.data?.color):'white')
+                // selectedG
+                //     .selectAll('.chapter-number')
+                //     .style('color',doInvert?'white':'black')
+            },
+            dispatchCharacter2ChapterLines(d,i){
+                this.clearOuterRelations(false);
+                let circleElementInstance=d.currentTarget.lastChild
                 let {character2ChapterRelationList}=this.rawData,
-                    {ringCapsule}=this.graphInstance.outerRelationRing
+                    {capsuleRing}=this.graphInstance.outerRelationRing;
                 let filteredRelationList=character2ChapterRelationList.filter((d)=>{
                     return d.character===i.data.character
                 })
                 let relationDataList=filteredRelationList.map((d)=>{
-                    let match=ringCapsule.filter((capsuleData)=>capsuleData.data.num===d.chapter)
+                    let match=capsuleRing.filter((capsuleData)=>capsuleData.data.num===d.chapter)
                     return {target:match.datum(),source:i}
                 })
                 //key
-
-                this.graphInstance.outerRelationRing.outerRelationGroup=this.generateCurves(relationDataList,d.currentTarget.attributes)
+                this.graphInstance.outerRelationRing.relationDataList=relationDataList;
+                this.graphInstance.outerRelationRing.outerRelationGroup=this.generateChara2ChapterCurves(relationDataList,circleElementInstance.attributes)
+                this.invertCapsuleStyles(relationDataList);
             },
-            generateCurves(relationDataList,startPointAttr){
+            dispatchGenerateCoverRelation(){
+                const {coverRelationList}=this.rawData,
+                    {capsuleRing}=this.graphInstance.outerRelationRing,
+                    {chordRing}=this.graphInstance.relationChord;
+                let relationDataList=coverRelationList.map((d)=>{
+                    let target=capsuleRing.filter((capsuleData)=>capsuleData.data.num===d.chapter)?.datum();
+                    let sourceSelection=chordRing.filter(chordData=>chordData.data.character===d.character);
+                    let source=sourceSelection.datum()
+                   return{
+                       target,
+                       source,
+                       sourceSelection
+                   }
+                })
+                //不该用cx cy来做偏移的，如果以后要重构希望可以直接用角度算偏移
+                let startPointAttrList=relationDataList.map(d=> d.sourceSelection?._groups[0][0]?.lastChild?.attributes);
+                this.graphInstance.outerRelationRing.outerRelationGroup=this.generateChara2ChapterCurves(relationDataList,startPointAttrList)
+                // this.invertCapsuleStyles(relationDataList);
+            },
+            /**
+             * 触发内圈关联响应时返显capsule样式,doinvert:返显/复原
+             */
+            invertCapsuleStyles(relationDataList,doInvert=true,isChapter2Chara=false){
+                let {chapterRingGroup}=this.graphInstance.outerRelationRing;
+                let relationWeakMap=new WeakMap();
+                relationDataList.forEach((d)=>{
+                    if(isChapter2Chara)
+                        relationWeakMap.set(d.source,d.target);
+                    else
+                        relationWeakMap.set(d.target,d.source);
+                })
+                let groupDataMatch=chapterRingGroup.filter((d)=>{
+                    return relationWeakMap.get(d)!==undefined
+                });
+                groupDataMatch
+                    .selectAll('.chapter-capsule')
+                    .style('fill',d=>doInvert?(relationWeakMap.get(d)?.data?.color):'white')
+                groupDataMatch
+                    .selectAll('.chapter-number')
+                    .style('color',doInvert?'white':'black')
+                return groupDataMatch
+            },
+
+            generateChapter2CharaCurves(relationDataList,startPointAttr){
                 let innerRingRadius=this.relationChordConfig.outerRadius*1.2;
                 let outerRingRaidius=this.chapterRingConfig.innerRadius;
                 let {width,height}=this.baseConfig;
@@ -286,20 +388,20 @@
                 //峰式scale
                 let firstLineRadiusScale=this.$d3.scaleLinear(
                     [-Math.PI,0,Math.PI],
-                    [offsetDistance*0.1+innerRingRadius,offsetDistance*0.9+innerRingRadius,offsetDistance*0.1+innerRingRadius]
+                    [outerRingRaidius-offsetDistance*0.1,outerRingRaidius-offsetDistance*0.9,outerRingRaidius-offsetDistance*0.1]
                 );
                 let firstLineAngleScale=this.$d3.scaleLinear([-Math.PI,Math.PI],[Math.PI/8,-Math.PI/8]);
-                let firstCurveList=relationDataList.map((relationObj)=>{
+                //计算从source-拐点-arc-capsule内侧的路径中的关键点数据列表
+                let customCurveDataList=relationDataList.map((relationObj)=>{
                     let {source,target}=relationObj
-                    //考虑source永远大于target
-                    let offsetAngle=(source.centralDegree-target.centerAngle);
+                    let offsetAngle=(source.centerAngle-target.centerAngle);
                     //offset是个-2pi-2pi之间的值，-pi到pi之间可以保留，超出的值要进行处理
                     // 超过180度的应转成负值
                     if(offsetAngle>Math.PI)
                         offsetAngle=offsetAngle-Math.PI*2;
                     if(offsetAngle<-Math.PI)
                         offsetAngle=Math.PI*2+offsetAngle;
-                    let inflectionArcStartPointAngle=source.centralDegree+firstLineAngleScale(offsetAngle);
+                    let inflectionArcStartPointAngle=source.centerAngle+firstLineAngleScale(offsetAngle);
                     let inflectionPointRadius=firstLineRadiusScale(offsetAngle)
                     //curveAngle为加上偏移值的最终值，范围应在0-2pi，如果超过则进行处理
                     if(inflectionArcStartPointAngle>Math.PI*2)
@@ -313,11 +415,95 @@
                     if(this.isInCapsuleAngleRange(target.startAngle,target.endAngle,inflectionArcStartPointAngle)){
                         inflectionArcEndPointAngle=target.centerAngle;
                     }
-
-                    //最后一段从弧度拐点到目标capsule的弧线
-                    const inflectionArc2TargetAdapter=this.$d3.lineRadial()
+                    const inflectionArc2TargetAdapter=this.$d3.lineRadial().curve(this.$d3.curveBasis)
                     ([
                         [inflectionArcEndPointAngle,inflectionPointRadius],
+                        [target.centerAngle,inflectionPointRadius],
+                        [target.centerAngle,innerRingRadius]
+                    ]);
+                    return {
+                        ...relationObj,
+                        inflectionPointRadius,//arc弧度
+                        inflectionArcStartPointAngle,//arc拐点起点角度
+                        inflectionArcEndPointAngle,//arc拐点终点角度
+                        inflectionArc2TargetAdapter,//arc拐点终点到capsule的line adapter
+                        position //target相对于source 偏移方向
+                    };
+                })
+                //根据关键点数据拼装路径
+                let pathAdapter=customCurveDataList.map((d)=>{
+                    let path= this.$d3.path()
+                    //d3的角度计算和canvas角度计算差90度,且角度相反.......
+                    path.moveTo(parseFloat(startPointAttr.cx.nodeValue)+width/2,parseFloat(startPointAttr.cy.nodeValue)+height/2);
+                    path.arc(width/2,height/2,d.inflectionPointRadius,d.inflectionArcStartPointAngle-Math.PI/2, d.inflectionArcEndPointAngle-Math.PI/2,
+                        d.position === 'left');
+                    return [path.toString(),d.inflectionArc2TargetAdapter,d.target.data.color]
+                })
+                const outerRelationGroup=this.createGroupOrigin('outer-relaton-path-group',false)
+                    .selectAll('outer-relaton-path')
+                    .data(pathAdapter)
+                    .join('g')
+                outerRelationGroup
+                    .append('path')
+                    .attr("stroke-opacity", 0.5)
+                    .style("stroke", d=>d[2])
+                    .style("stroke-width", 3)
+                    // .style("stroke", (d,i)=>{ return i>8&&i<10?'black':'white'})
+                    .style("fill", "none")
+                    .attr('d',d=>d[0])
+                outerRelationGroup
+                    .append('path')
+                    .style("fill", "none")
+                    .attr("stroke-opacity", 0.5)
+                    .attr('transform',`translate(${width/2},${height/2})`)
+                    .style("stroke", d=>d[2])
+                    .style("stroke-width", 3)
+                    // .style("stroke", (d,i)=>{ return i>8&&i<10?'black':'white'})
+                    .attr('d',d=>d[1]);
+                return outerRelationGroup;
+            },
+            generateChara2ChapterCurves(relationDataList,startPointData){
+                let innerRingRadius=this.relationChordConfig.outerRadius*1.2;
+                let outerRingRaidius=this.chapterRingConfig.innerRadius;
+                let {width,height}=this.baseConfig;
+                //该折线分为三段，一段从点到拐点，二段为从拐点到目标角度（目测为目标startend）附近的一段arc，最后为一段为弧度终点到capsule中间位置的一段直线
+                let offsetDistance=outerRingRaidius-innerRingRadius;
+                //峰式scale
+                let firstLineRadiusScale=this.$d3.scaleLinear(
+                    [-Math.PI,0,Math.PI],
+                    [offsetDistance*0.1+innerRingRadius,offsetDistance*0.9+innerRingRadius,offsetDistance*0.1+innerRingRadius]
+                );
+                let firstLineAngleScale=this.$d3.scaleLinear([-Math.PI,Math.PI],[Math.PI/8,-Math.PI/8]);
+                //计算从source-拐点-arc-capsule内侧的路径中的关键点数据列表
+                let customCurveDataList=relationDataList.map((relationObj)=>{
+                    let {source,target}=relationObj
+                    let offsetAngle=(source.centerAngle-target.centerAngle);
+                    //offset是个-2pi-2pi之间的值，-pi到pi之间可以保留，超出的值要进行处理
+                    // 超过180度的应转成负值
+                    if(offsetAngle>Math.PI)
+                        offsetAngle=offsetAngle-Math.PI*2;
+                    if(offsetAngle<-Math.PI)
+                        offsetAngle=Math.PI*2+offsetAngle;
+                    let inflectionArcStartPointAngle=source.centerAngle+firstLineAngleScale(offsetAngle);
+                    let inflectionPointRadius=firstLineRadiusScale(offsetAngle)
+                    //curveAngle为加上偏移值的最终值，范围应在0-2pi，如果超过则进行处理
+                    if(inflectionArcStartPointAngle>Math.PI*2)
+                        inflectionArcStartPointAngle=inflectionArcStartPointAngle-Math.PI*2;
+                    if(inflectionArcStartPointAngle<0)
+                        inflectionArcStartPointAngle=inflectionArcStartPointAngle+Math.PI*2;
+                    const position=this.getAnglePosition(offsetAngle);
+                    //相对位置在左侧则贴近endAngle，在右侧则贴近startAngle
+                    let inflectionArcEndPointAngle=position==='left'?target.endAngle:target.startAngle
+                    //及其极端的情况，起始角度在capsule位置内，则指向中心
+                    if(this.isInCapsuleAngleRange(target.startAngle,target.endAngle,inflectionArcStartPointAngle)){
+                        inflectionArcEndPointAngle=target.centerAngle;
+                    }
+                    //最后一段从弧度拐点到目标capsule的弧线
+                    const inflectionArc2TargetAdapter=this.$d3.lineRadial().curve(this.$d3.curveBasis)
+                    ([
+                        [inflectionArcEndPointAngle,inflectionPointRadius],
+                        [target.centerAngle,inflectionPointRadius],
+                        [target.centerAngle,(outerRingRaidius-inflectionPointRadius)*0.8+inflectionPointRadius],
                         [target.centerAngle,outerRingRaidius]
                     ])
                     return {
@@ -329,9 +515,10 @@
                         position //target相对于source 偏移方向
                     };
                 })
-                debugger;
-                let pathAdapter=firstCurveList.map((d)=>{
+                //根据关键点数据拼装路径
+                let pathAdapter=customCurveDataList.map((d,i)=>{
                     let path= this.$d3.path()
+                    let startPointAttr=Array.isArray(startPointData)?startPointData[i]:startPointData
                     //d3的角度计算和canvas角度计算差90度,且角度相反.......
                     path.moveTo(parseFloat(startPointAttr.cx.nodeValue)+width/2,parseFloat(startPointAttr.cy.nodeValue)+height/2);
                     path.arc(width/2,height/2,d.inflectionPointRadius,d.inflectionArcStartPointAngle-Math.PI/2, d.inflectionArcEndPointAngle-Math.PI/2,
@@ -359,15 +546,7 @@
                     .style("stroke-width", 3)
                     // .style("stroke", (d,i)=>{ return i<3?'black':'white'})
                     .attr('d',d=>d[1]);
-                debugger;
                 return outerRelationGroup;
-            },
-            getSrc2TargetPosition(source,target,offsetAngle){
-                let {startAngle,endAngle}=target,{centralDegree}=source;
-                if(this.isInCapsuleAngleRange(startAngle,endAngle,centralDegree))
-                    return this.getRelativePosition(startAngle,endAngle,centralDegree)
-                else
-                    return this.getAnglePosition(offsetAngle)
             },
             /**
              *根据偏移角度计算是在左侧还是右侧
@@ -387,15 +566,6 @@
                 return position
             },
             /**
-             * 特殊情况计算相对位置
-             */
-            getRelativePosition(startAngle,endAngle,centralDegree){
-                let [lOffset,rOffset]=[centralDegree-startAngle,endAngle-centralDegree].map((d)=>{
-                    return d>=0?d:d+Math.PI*2
-                })
-                return lOffset>rOffset?'right':'left'
-            },
-            /**
              * 某些极端情况，需要改变position值，判断是否该点角度是否位于capsule angle范围内
              */
             isInCapsuleAngleRange(startAngle,endAngle,centerAngle){
@@ -409,6 +579,7 @@
             await this.initRawData();
             this.graphInstance.relationChord=this.initRelationChord()
             this.graphInstance.outerRelationRing=this.initChapterRing()
+            this.dispatchGenerateCoverRelation();
         }
 
     }
