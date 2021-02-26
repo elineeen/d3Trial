@@ -39,16 +39,15 @@
                 let v0, q0, r0;
                 const d3Instance=this.$d3;
                 // const {projection}=this.baseConfig;
-                const dragStart= function(){
-                    let evt=d3Instance.event;
+                const dragStart= function(evt){
+                    // let evt=d3Instance.event;
                     v0 = versor.cartesian(projection.invert([evt.x, evt.y]));
                     q0 = versor(r0 = projection.rotate());
                 };
-                const dragged=function() {
-                    let evt=d3Instance.event;
+                const dragged=function(evt) {
+                    // let evt=d3Instance.event;
                     const v1 = versor.cartesian(projection.rotate(r0).invert([evt.x, evt.y])); // 笛卡尔坐标系
                     const q1 = versor.multiply(q0, versor.delta(v0, v1));
-                    console.dir(versor.rotation(q1));
                     projection.rotate(versor.rotation(q1));
                 }
                 const  dragAdapter=this.$d3.drag()
