@@ -13,6 +13,7 @@ import collisionDetection from '../views/force/collision-detection'
 import USAWindMap from '../views/geo/wind'
 import USAWindMapCanvas from '../views/geo/windCanvas'
 import compositeSakura from '../views/chord/sakura'
+import gitIndex from "../views/geo/gitIndex";
 Vue.use(VueRouter)
 
   const routes = [
@@ -75,6 +76,11 @@ Vue.use(VueRouter)
               path: '/compositeSakura',
               name: 'compositeSakura',
               component: compositeSakura
+          },
+          {
+              path: '/gitIndex',
+              name: 'gitIndex',
+              component: gitIndex
           },
 
       ]
