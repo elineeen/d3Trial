@@ -73,3 +73,13 @@ fasinate customized relation lines.
 I omitted some annotaiton texts and outer ring elements,
 so u'd better try the origin ones first to figure out how it works
 ```
+
+### [githubIndexPage](https://elineeen.github.io/d3Trial/#/gitIndex)
+origin:github.com (the index page canvas)
+```
+I spend lots of effort on this work, but most of them are wasted 
+but using d3 projections & geo apis is still hard to draw dynamic curves out of the sphere's bound,
+d3 provides little apis' and supports with spherical projection, which make the process to be extremely hard. 
+Maybe other 3d webgl tools will get better outcomes,such as three.js
+but i'm entirely fraustrated during all these coordinates transformation trials and this mimic work will not be updated in futher times 
+```
