@@ -458,7 +458,6 @@
                     .attr('transform',`translate(${width/2},${height/2})`)
                     .style("stroke", d=>d[2])
                     .style("stroke-width", 3)
-                    // .style("stroke", (d,i)=>{ return i>8&&i<10?'black':'white'})
                     .attr('d',d=>d[1]);
                 return outerRelationGroup;
             },
@@ -557,7 +556,7 @@
                 let position='';
                 if(offsetAngle>0&&offsetAngle<Math.PI)
                     position='left';
-                else if(offsetAngle<-Math.PI)
+                else if(offsetAngle< -Math.PI)
                     position='left';
                 else if(offsetAngle>Math.PI)
                     position='right'

@@ -14,6 +14,7 @@ import USAWindMap from '../views/geo/wind'
 import USAWindMapCanvas from '../views/geo/windCanvas'
 import compositeSakura from '../views/chord/sakura'
 import gitIndex from "../views/geo/gitIndex";
+import circularEffects from "../views/commonCharts/circularEffects";
 Vue.use(VueRouter)
 
   const routes = [
@@ -81,6 +82,11 @@ Vue.use(VueRouter)
               path: '/gitIndex',
               name: 'gitIndex',
               component: gitIndex
+          },
+          {
+              path: '/swooshDemo',
+              name: 'swooshDemo',
+              component: circularEffects
           },
 
       ]
