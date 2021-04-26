@@ -15,6 +15,7 @@ import USAWindMapCanvas from '../views/geo/windCanvas'
 import compositeSakura from '../views/chord/sakura'
 import gitIndex from "../views/geo/gitIndex";
 import circularEffects from "../views/commonCharts/circularEffects";
+import transitionCounter from "../views/effects/counter";
 Vue.use(VueRouter)
 
   const routes = [
@@ -87,6 +88,11 @@ Vue.use(VueRouter)
               path: '/swooshDemo',
               name: 'swooshDemo',
               component: circularEffects
+          },
+          {
+              path: '/transitionCounter',
+              name: 'transitionCounter',
+              component: transitionCounter
           },
 
       ]

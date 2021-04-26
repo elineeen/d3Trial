@@ -78,7 +78,7 @@ so u'd better try the origin ones first to figure out how it works
 origin:github.com (the index page canvas)
 ```
 I spend lots of effort on this work, which most of them are wasted 
-but using d3 projections & geo apis is still hard to draw dynamic curves & items out of the sphere's bound,
+but using d3 projections & geo apis' is still hard to draw dynamic curves & items out of the sphere's bound,
 d3 provides little apis' and supports with spherical projection, which make the process to be extremely hard. 
 Maybe other 3d webgl tools will get better outcomes,such as three.js
 but i'm entirely fraustrated during all these coordinates transformation trials and this mimic work will not be updated in futher times 
@@ -88,6 +88,14 @@ but i'm entirely fraustrated during all these coordinates transformation trials 
 origin:https://magiciseverywhere.visualcinnamon.com/ (book legend part)
 ```
 I'm not familiar with the method the original work used in drawing swooshes,
-thus spend some time to mimic the effect with different way(still with lots of code, but i suppose is more readable).
+thus spend some time to mimic the effect with a different way(still with lots of code, but i suppose is more readable).
 Again, i realized i hate math & algorithms
+```
+
+### [transitionCounter](https://elineeen.github.io/d3Trial/#/transitionCounter)
+original work(idea comes from https://observablehq.com/@marialuisacp/artistic-d3-line-transition)
+```
+This work is first an attempt to find a dynamic countdown effect solution on my daily work,
+but lack of aesthetic sense result in poor design in number shaping.
+HW really made me disgust
 ```
