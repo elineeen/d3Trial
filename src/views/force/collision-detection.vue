@@ -53,9 +53,9 @@
                         .force("charge", mode["charge"])
                 }
             },
-            _pointed(){
+            _pointed(evt){
                 const {width,height}=this.baseConfig;
-                const {offsetX, offsetY} = this.$d3.event;
+                const {offsetX, offsetY} = evt;
                 this.nodeList[0].fx = offsetX - width / 2;
                 this.nodeList[0].fy = offsetY - height / 2;
             },

@@ -66,7 +66,6 @@
                     wrapArc= d3.arc()
                         .innerRadius(innerRadius)
                         .outerRadius(outerRadius);
-                debugger;
                 const group=this.createGroupOrigin()
                     .selectAll('g')
                     .data(chordAdapter(this.adaptedData.matrix).groups)

@@ -33,7 +33,6 @@
                     //height为360度分割，之后作为旋转角度
                     .size([360, width/2 - 100]),
                 treeEL=cluster(treeData);
-                debugger;
                 const node =
                     this.createGroupOrigin()
                         .attr("font-family", "sans-serif")
@@ -67,7 +66,6 @@
                     .attr("d",([i,o])=>{ return curveLine(i.path(o))})
                     //大概是为了响应hover标记用数据？
                     // .each(function(d) { debugger; d.path = this; });
-                debugger;
             },
             createGroupOrigin(){
                 const {width,height}=this.baseConfig;
