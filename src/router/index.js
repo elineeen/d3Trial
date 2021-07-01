@@ -16,6 +16,7 @@ import compositeSakura from '../views/chord/sakura'
 import gitIndex from "../views/geo/gitIndex";
 import circularEffects from "../views/commonCharts/circularEffects";
 import transitionCounter from "../views/effects/counter";
+import cellularNetworkFlow from "../views/effects/cellular-network-flow";
 Vue.use(VueRouter)
 
   const routes = [
@@ -93,6 +94,11 @@ Vue.use(VueRouter)
               path: '/transitionCounter',
               name: 'transitionCounter',
               component: transitionCounter
+          },
+          {
+              path: '/cellularEffect',
+              name: 'cellularNetworkFlow',
+              component: cellularNetworkFlow
           },
 
       ]

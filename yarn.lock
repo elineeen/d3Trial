@@ -895,6 +895,11 @@
   resolved "https://registry.npm.taobao.org/@soda/get-current-script/download/@soda/get-current-script-1.0.2.tgz?cache=0&sync_timestamp=1592273074614&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40soda%2Fget-current-script%2Fdownload%2F%40soda%2Fget-current-script-1.0.2.tgz#a53515db25d8038374381b73af20bb4f2e508d87"
   integrity sha1-pTUV2yXYA4N0OBtzryC7Ty5QjYc=
 
+"@tweenjs/tween.js@^18.6.4":
+  version "18.6.4"
+  resolved "https://registry.npm.taobao.org/@tweenjs/tween.js/download/@tweenjs/tween.js-18.6.4.tgz#40a3d0a93647124872dec8e0fd1bd5926695b6ca"
+  integrity sha1-QKPQqTZHEkhy3sjg/RvVkmaVtso=
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npm.taobao.org/@types/color-name/download/@types/color-name-1.1.1.tgz?cache=0&sync_timestamp=1588199606687&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fcolor-name%2Fdownload%2F%40types%2Fcolor-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -7665,6 +7670,11 @@ tough-cookie@^2.3.3, tough-cookie@~2.5.0:
   dependencies:
     psl "^1.1.28"
     punycode "^2.1.1"
+
+troisjs@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.nlark.com/troisjs/download/troisjs-0.3.0.tgz#652c0a3ac9ff34beea457b6ef02427161fd2a6dc"
+  integrity sha1-ZSwKOsn/NL7qRXtu8CQnFh/Sptw=
 
 tryer@^1.0.1:
   version "1.0.1"
