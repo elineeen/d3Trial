@@ -99,3 +99,12 @@ This work is first an attempt to find a dynamic countdown effect solution on my 
 but lack of aesthetic sense result in poor design in number shaping.
 HW really made me disgust
 ```
+
+### [cellular flow](https://elineeen.github.io/d3Trial/#/cellularEffect)
+original work(imitate the canvas head banner from https://eruda.liriliri.io/)
+```
+Back to 2d again lol, this work is fairly intestering in visual effects, but i suppose there's a lot of detail work on the line effect
+& logic.
+A pratice with tween.js & there's not much things applied with d3, i may consider changing this project name to '2d-trial' since 
+from now on this repo will be mainly focused in 2D but not just d3 library  
+```
