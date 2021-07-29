@@ -1,6 +1,7 @@
 # d3trial
 ```
- gathered samples from web and rewrite them in d3v5
+ gathered samples from web and rewrite them in d3v6
+ listed work is ordered by createTime ascending
 ```
 ## Project setup
 ```
@@ -27,10 +28,10 @@ origin:https://observablehq.com/@d3/chord-dependency-diagram?collection=@d3/d3-c
 learn how to use arc,path and chord/ribbons
 ```
 ### [polar custom brush](https://elineeen.github.io/d3Trial/#/customBrush)
-   origin:https://bl.ocks.org/emeeks/2fffa9abe50ac97603c7
-   ```
-   scales,customWidgets,polar,etc
-   ```
+origin:https://bl.ocks.org/emeeks/2fffa9abe50ac97603c7
+```
+scales,customWidgets,polar,etc
+```
 ### [common bars](https://elineeen.github.io/d3Trial/#/barchart)
 ```
 axis&stack
@@ -68,7 +69,7 @@ i also make some effort at first and you can see the effect below )
 ### [anime Sakura](https://elineeen.github.io/d3Trial/#/compositeSakura)
 origin:https://cardcaptorsakura.visualcinnamon.com
 ```
-chracter-chaper relation graph about sakura anime with d3 chord ribbons &
+character-chaper relation graph about sakura anime with d3 chord ribbons &
 fasinate customized relation lines.
 I omitted some annotaiton texts and outer ring elements,
 so u'd better try the origin ones first to figure out how it works
@@ -100,11 +101,20 @@ but lack of aesthetic sense result in poor design in number shaping.
 HW really made me disgust
 ```
 
-### [cellular flow](https://elineeen.github.io/d3Trial/#/cellularEffect)
+### [cellular flow](https://elineeen.github.io/d3Trial/#/timeline)
 original work(imitate the canvas head banner from https://eruda.liriliri.io/)
 ```
 Back to 2d again lol, this work is fairly intestering in visual effects, but i suppose there's a lot of detail work on the line effect
 & logic.
-A pratice with tween.js & there's not much things applied with d3, i may consider changing this project name to '2d-trial' since 
+A pratice with tween.js & there's not much things related with d3, i may consider changing this project name to '2d-trial' since 
 from now on this repo will be mainly focused in 2D but not just d3 library  
+```
+
+### [timelineGraph pt1](https://elineeen.github.io/d3Trial/#/timeline)
+original image(https://elineeen.github.io/d3Trial/timelineDemo.png)
+```
+An original work with tween & canvas2d, the idea came from an illustration of a light novel(Grace Note),
+it's quite fascinating in picture so i make some effort to sketch it in a dynamic form
+it's only on halfway until finish, and i'll try different forms rather than canvas to paint the PAST part to get some interest lol 
+Now i found it a lot harder to get ideas than just immitating visualizations.
 ```
