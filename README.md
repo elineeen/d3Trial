@@ -114,7 +114,8 @@ from now on this repo will be mainly focused in 2D but not just d3 library
 original image(https://elineeen.github.io/d3Trial/timelineDemo.png)
 ```
 An original work with tween & canvas2d, the idea came from an illustration of a light novel(Grace Note),
-it's quite fascinating in picture so i make some effort to sketch it in a dynamic form
+I tried to present aesthetic with combination of randomized sequences & iterations and some fixed positions rules to provide orderness
+the original picture is already quite fascinating in static, so i make some effort to sketch it in a dynamic form
 it's only on halfway until finish, and i'll try different forms rather than canvas to paint the PAST part to get some interest lol 
-Now i found it a lot harder to get ideas than just immitating visualizations.
+Now i found it MUCH MORE hard to get ideas to create original works rather than just immitating existing visualizations.
 ```

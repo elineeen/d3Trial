@@ -39,6 +39,9 @@ export default {
         height:this.baseConfig.height+'px'
       }
     },
+    // 宽度比例调整以模拟插图上的不均匀分布
+    // 中间1/2 in 1/3 place
+    // 其余1/2 in 2/3 place
     mainLaneXPositionScale(){
       let {mainLaneNum,width}=this.baseConfig,quarterLaneNum=Math.floor(mainLaneNum)/4;
       return this.$d3.scaleLinear([0,quarterLaneNum,quarterLaneNum*3,mainLaneNum],[0,Math.floor(width/3),Math.floor(width/3)*2,width])
