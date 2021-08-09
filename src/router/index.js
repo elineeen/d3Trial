@@ -18,6 +18,7 @@ import circularEffects from "../views/commonCharts/circularEffects";
 import transitionCounter from "../views/effects/counter";
 import cellularNetworkFlow from "../views/effects/cellular-network-flow";
 import timelineGraph from "../views/effects/timelineGraph";
+import timelineGraphComplete from "../views/effects/timelineGraphPt2";
 Vue.use(VueRouter)
 
   const routes = [
@@ -105,6 +106,11 @@ Vue.use(VueRouter)
               path: '/timeline',
               name: 'timelineGraph',
               component: timelineGraph
+          },
+          {
+              path: '/timelineGraphComplete',
+              name: 'timelineGraphComplete',
+              component: timelineGraphComplete
           },
 
       ]

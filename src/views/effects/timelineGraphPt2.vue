@@ -24,6 +24,11 @@ export default {
         randomLaneNum: 80,
         clusterBand: 40,
       },
+      simulationConfig:{
+        nodeList:[],
+        simulation:null,
+
+      },
       control: {
         flowPerTick: 5,//每个interval产生的流数量
         randomLaneIterations: 8,//在到达必须汇入点前进行的迭代次数
@@ -99,21 +104,43 @@ export default {
       canvas.stroke()
       return canvas
     },
-
-    renderCanvasBackground (canvasID, canvasTitle = '') {
+    _drawPointFromNode(canvasID,nodeData){
+      debugger;
+      let {x,y,r}=nodeData;
+      const ctx = document.getElementById(canvasID).getContext('2d')
+      ctx.beginPath();
+      ctx.fillStyle =  'rgb(40,40,40,1)';
+      ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+      ctx.stroke();
+      ctx.fill()
+      ctx.beginPath();
+      ctx.fillStyle =  'rgb(255,255,255,1)';
+      ctx.arc(x, y, r*0.8, 0, 2 * Math.PI, false);
+      ctx.stroke();
+      ctx.fill()
+    },
+    renderCanvasBackground (canvasID) {
       const { width, height } = this.baseConfig
       const canvasInstance = document.getElementById(canvasID).getContext('2d')
 
       canvasInstance.beginPath()
       canvasInstance.fillRect(0, 0, width, height)
-      canvasInstance.fillStyle = 'white'
-      canvasInstance.font = 'normal 20px serif'
-      canvasInstance.fillText(canvasTitle, 20, 20)
       canvasInstance.fillStyle = 'rgb(255,255,255,0.15)'
       canvasInstance.fill()
       this._drawStaticBlock(canvasInstance, [0, 0], 'FUTURE')
       this._drawStaticBlock(canvasInstance, [0, height / 2], 'CURRENT')
+      this._drawStaticBlock(canvasInstance, [0, height-100], 'PAST')
       // this._drawStaticBlock(canvasInstance)
+    },
+    renderSimulationBackground(canvasID){
+      const { width, height } = this.baseConfig
+      const canvasInstance = document.getElementById(canvasID).getContext('2d')
+      canvasInstance.beginPath()
+      canvasInstance.fillStyle = 'rgb(255,255,255,1)'
+      canvasInstance.fillRect(0, height/2+60, width, height/2-200)
+
+      // canvasInstance.fillStyle = 'rgb(255,255,255,1)'
+      canvasInstance.fill()
     },
     /**
      * 生成一个区块
@@ -136,6 +163,9 @@ export default {
       const animate = () => {
         window.requestAnimationFrame(animate)
         TWEEN.update()
+        //点绘制必须实时animate中重新渲染第二部分画布
+        this.renderSimulationBackground('flow-future-2-current')
+        this.simulationConfig?.simulation?.nodes().forEach(d=>this._drawPointFromNode('flow-future-2-current',d))
       }
       animate()
     },
@@ -218,18 +248,57 @@ export default {
         tweenList[0].start()
       }
       return tweenList[0]
+    },
+    initParticleSimulation(){
+      let nodeList=this.simulationConfig.nodeList;
+      const simulation = this.$d3.forceSimulation(nodeList)
+          .alphaTarget(0.3) // stay hot
+          .velocityDecay(0.2) // low friction
+          .force("x", this.$d3.forceX().strength(0))
+          .force("y", this.$d3.forceY().strength(-0.001))
+          // .force("collide", this.$d3.forceCollide().radius(d => d.r + 1).iterations(3))
+          // .force("charge", this.$d3.forceManyBody().strength((d, i) => i ? 0 : 1000).distanceMin(100))
+          // try to do some render
+          .on("tick", ()=>{
+
+            // nodes
+            //     .attr("cx", d => d.x)
+            //     .attr("cy", d => d.y)
+          });
+      this.simulationConfig.simulation=simulation
+      // this.$d3.select("svg")
+      //     .on("touchmove", event => event.preventDefault())
+      //     .on("pointermove", this._pointed);
+    },
+    _generateParticleData(number=5){
+      let {width,height,clusterBand}=this.baseConfig
+      const k = width / 800;
+      const halfBand = clusterBand / 2
+      const r = this.$d3.randomUniform(k, k * 4);
+      const xRandom = this.$d3.randomUniform(width/2-halfBand,width/2+halfBand);
+      const yRandom = this.$d3.randomUniform(height/2,height/2+100);
+      let dataAdapter=Array.from({length: number}, (_, i) => ({r: r(),x:xRandom(),y:yRandom(),group: i && (i % 4 + 1)}));
+      this.simulationConfig.nodeList=this.simulationConfig.nodeList.concat(dataAdapter)
+      debugger;
+      this.simulationConfig.simulation?.nodes(this.simulationConfig.nodeList)
     }
   },
   mounted () {
     const { flowPerTick } = this.control
     const { randomLaneNum } = this.baseConfig
     this.$d3.interval(() => {
+      //流数据生成
       for (let i = 0; i < flowPerTick; i++) {
         let tweenStater = this.generateRandomFlowRoute(this._getRandomIntInclusive(0, randomLaneNum))
         tweenStater.start()
       }
+      //simulation粒子数据生成
+      this._generateParticleData();
+      this.initParticleSimulation();
       this.renderCanvasBackground('flow-future-2-current')
+
     }, 100)
+
     this.initAnimate()
   }
 }
