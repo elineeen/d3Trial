@@ -23,22 +23,40 @@ export default {
         mainLaneNum: 20,
         randomLaneNum: 80,
         clusterBand: 40,
+        particleFallStartThreshHold: 670,
+        particleFallSpreadThreshHold: 750,
+        particleFallEndThreshHold: 950,//粒子消逝位置
       },
-      simulationConfig:{
-        nodeList:[],
-        simulation:null,
+      simulationConfig: {
+        nodeList: [],
+        simulation: null,
 
       },
       control: {
+        isParticleStart: false,
         flowPerTick: 5,//每个interval产生的流数量
         randomLaneIterations: 8,//在到达必须汇入点前进行的迭代次数
         conjureLaneChancePercent: 15,//每次迭代随机流汇入主流的几率
         flowSpeed: 200,
-
       }
     }
   },
   computed: {
+    //粒子下落速度调整
+    particleYSpeedScale () {
+      const {
+        particleFallStartThreshHold,
+        particleFallSpreadThreshHold,
+        particleFallEndThreshHold,
+        height
+      } = this.baseConfig
+      return this.$d3.scaleThreshold(
+          [particleFallStartThreshHold, particleFallSpreadThreshHold, particleFallEndThreshHold],
+          [-0.005, -0.005, -0.0005, -0.0005])
+    },
+    particleXForceXScale () {
+      return this.$d3.scaleOrdinal([0, 1], [0, this.baseConfig.width])
+    },
     canvasStyle () {
       return {
         width: this.baseConfig.width + 'px',
@@ -97,27 +115,31 @@ export default {
           })
     },
     _drawLine (fromObj, toObj, canvas) {
-
       canvas.beginPath()
       canvas.moveTo(fromObj.x, fromObj.y)
       canvas.lineTo(toObj.x, toObj.y)
       canvas.stroke()
       return canvas
     },
-    _drawPointFromNode(canvasID,nodeData){
-      debugger;
-      let {x,y,r}=nodeData;
-      const ctx = document.getElementById(canvasID).getContext('2d')
-      ctx.beginPath();
-      ctx.fillStyle =  'rgb(40,40,40,1)';
-      ctx.arc(x, y, r, 0, 2 * Math.PI, false);
-      ctx.stroke();
-      ctx.fill()
-      ctx.beginPath();
-      ctx.fillStyle =  'rgb(255,255,255,1)';
-      ctx.arc(x, y, r*0.8, 0, 2 * Math.PI, false);
-      ctx.stroke();
-      ctx.fill()
+    /**
+     * current 2 past 部分粒子绘制
+     **/
+    _drawParticleFromNode (canvasID, nodeData) {
+      let { x, y, r } = nodeData, { particleFallStartThreshHold } = this.baseConfig
+      if (y > particleFallStartThreshHold) {
+        const ctx = document.getElementById(canvasID).getContext('2d')
+        ctx.strokeStyle = `rgb(40,40,40,${nodeData.opacity})`
+        ctx.beginPath()
+        ctx.fillStyle = `rgb(40,40,40,${nodeData.opacity})`
+        ctx.arc(x, y, r, 0, 2 * Math.PI, false)
+        ctx.stroke()
+        ctx.fill()
+        ctx.beginPath()
+        ctx.fillStyle = `rgb(255, 255, 255, 1)`
+        ctx.arc(x, y, r * 0.8, 0, 2 * Math.PI, false)
+        ctx.stroke()
+        ctx.fill()
+      }
     },
     renderCanvasBackground (canvasID) {
       const { width, height } = this.baseConfig
@@ -129,17 +151,14 @@ export default {
       canvasInstance.fill()
       this._drawStaticBlock(canvasInstance, [0, 0], 'FUTURE')
       this._drawStaticBlock(canvasInstance, [0, height / 2], 'CURRENT')
-      this._drawStaticBlock(canvasInstance, [0, height-100], 'PAST')
-      // this._drawStaticBlock(canvasInstance)
+      this._drawStaticBlock(canvasInstance, [0, height - 100], 'PAST')
     },
-    renderSimulationBackground(canvasID){
+    renderSimulationBackground (canvasID) {
       const { width, height } = this.baseConfig
       const canvasInstance = document.getElementById(canvasID).getContext('2d')
       canvasInstance.beginPath()
       canvasInstance.fillStyle = 'rgb(255,255,255,1)'
-      canvasInstance.fillRect(0, height/2+60, width, height/2-200)
-
-      // canvasInstance.fillStyle = 'rgb(255,255,255,1)'
+      canvasInstance.fillRect(0, height / 2 + 60, width, height / 2 - 160)
       canvasInstance.fill()
     },
     /**
@@ -165,7 +184,7 @@ export default {
         TWEEN.update()
         //点绘制必须实时animate中重新渲染第二部分画布
         this.renderSimulationBackground('flow-future-2-current')
-        this.simulationConfig?.simulation?.nodes().forEach(d=>this._drawPointFromNode('flow-future-2-current',d))
+        this.simulationConfig?.simulation?.nodes().forEach(d => this._drawParticleFromNode('flow-future-2-current', d))
       }
       animate()
     },
@@ -180,8 +199,8 @@ export default {
       return XPositionList[0] > XPositionList[1] ? (rawIndex + 1) : rawIndex
     },
     /**
-     * 三次迭代随机汇入主流，第四次迭代必定汇入主流,拼接汇入主流的tween
-     * @param flowIndex
+     * 根据control里迭代次数变量和迭代几率随机汇入主流，如果一直未汇入则最后一次迭代必定汇入主流,拼接汇入主流之后的tween
+     * @param flowIndex 流位置编号
      */
     generateRandomFlowRoute (flowIndex = 0) {
       const { mainLaneNum, randomLaneNum } = this.baseConfig
@@ -226,6 +245,11 @@ export default {
         return tweenList[0]
       }
     },
+    /**
+     *  主流汇聚逻辑逻辑
+     *  mainFlowIndex 汇入主流编号
+     *  customStartPoint 支流汇入点
+     */
     generateMainFlowRoute (mainFlowIndex = 0, customStartPoint, autoStart = false) {
       const { flowStartHeight, centralHeight, inflectionHeight } = this.baseConfig
       const initialXScale = this.mainLaneXPositionScale
@@ -244,43 +268,94 @@ export default {
         if (index < tweenList.length - 1)
           tween.chain(tweenList[index + 1])
       })
+      //如果粒子特效未启动，则汇入后设置汇入标志位，
+      if (!this.control.isParticleStart) {
+        tweenList[tweenList.length - 1].onComplete(() => {
+          this.control.isParticleStart = true
+        })
+      }
       if (autoStart) {
         tweenList[0].start()
       }
       return tweenList[0]
     },
-    initParticleSimulation(){
-      let nodeList=this.simulationConfig.nodeList;
+    /**
+     * 初始化粒子模拟
+     */
+    initParticleSimulation () {
+      let nodeList = this.simulationConfig.nodeList
+      let { particleFallSpreadThreshHold, width } = this.baseConfig
       const simulation = this.$d3.forceSimulation(nodeList)
-          .alphaTarget(0.3) // stay hot
+          .alphaTarget(0.9) // stay hot
           .velocityDecay(0.2) // low friction
-          .force("x", this.$d3.forceX().strength(0))
-          .force("y", this.$d3.forceY().strength(-0.001))
-          // .force("collide", this.$d3.forceCollide().radius(d => d.r + 1).iterations(3))
-          // .force("charge", this.$d3.forceManyBody().strength((d, i) => i ? 0 : 1000).distanceMin(100))
-          // try to do some render
-          .on("tick", ()=>{
-
-            // nodes
-            //     .attr("cx", d => d.x)
-            //     .attr("cy", d => d.y)
-          });
-      this.simulationConfig.simulation=simulation
-      // this.$d3.select("svg")
-      //     .on("touchmove", event => event.preventDefault())
-      //     .on("pointermove", this._pointed);
+          //similation forceX.x可以调节每个node速度上水平方向，官方文档上不推荐使用负值的force，实际使用后也会发现负值速度进行similation与正常值不对称的问题
+          .force('x', this.$d3.forceX().strength(d => d.y > particleFallSpreadThreshHold ? d.xForce : 0).x(d => d.direction))
+          .force('y', this.$d3.forceY().strength(d => this.particleYSpeedScale(d.y)))
+      // fun mode if you wanna try it
+      // .force('y', this.$d3.forceY().strength(-0.015))
+      // .force("collide", this.$d3.forceCollide().radius(d => d.y>particleFallSpreadThreshHold?d.r+2 :0).iterations(3))
+      // .force("charge", this.$d3.forceManyBody().strength(d => d.y>particleFallSpreadThreshHold?-2.5:0))
+      this.simulationConfig.simulation = simulation
     },
-    _generateParticleData(number=5){
-      let {width,height,clusterBand}=this.baseConfig
-      const k = width / 800;
+    /**
+     * 生成新粒子
+     * @param number 粒子数量
+     * @private
+     */
+    _generateParticleData (number = 5) {
+      let { width, height, clusterBand, particleFallStartThreshHold } = this.baseConfig
+      const k = width / 800
       const halfBand = clusterBand / 2
-      const r = this.$d3.randomUniform(k, k * 4);
-      const xRandom = this.$d3.randomUniform(width/2-halfBand,width/2+halfBand);
-      const yRandom = this.$d3.randomUniform(height/2,height/2+100);
-      let dataAdapter=Array.from({length: number}, (_, i) => ({r: r(),x:xRandom(),y:yRandom(),group: i && (i % 4 + 1)}));
-      this.simulationConfig.nodeList=this.simulationConfig.nodeList.concat(dataAdapter)
-      debugger;
+      const r = this.$d3.randomUniform(k, k * 4)
+      const xForceR = this.$d3.randomUniform(0, 0.004)
+      const xRandom = this.$d3.randomUniform(width / 2 - halfBand, width / 2 + halfBand)
+      const yRandom = this.$d3.randomUniform(height / 2, particleFallStartThreshHold)
+      let dataAdapter = Array.from({ length: number }, (_, i) => ({
+        r: r(),
+        x: xRandom(),
+        xForce: xForceR(),
+        y: yRandom(),
+        isPerformed: false,
+        isTweenState: false,
+        opacity: 1,
+        direction: this.particleXForceXScale(this.$d3.randomInt(0, 1))
+      }))
+      this.simulationConfig.nodeList = this.simulationConfig.nodeList.concat(dataAdapter)
+      //需要对simulation重新设置node参数
       this.simulationConfig.simulation?.nodes(this.simulationConfig.nodeList)
+    },
+    _generateParticleFadeTween (node) {
+      node.isTweenState = true
+      return new TWEEN.Tween(node)
+          .easing(TWEEN.Easing.Cubic.Out)
+          .to({ opacity: 0 }, 1000)
+          .onComplete(() => {
+            node.isPerformed = true
+          })
+          .start()
+    },
+    //完成对新粒子及老粒子的状态管理
+    adjustParticles () {
+      const { nodeList } = this.simulationConfig, { particleFallEndThreshHold } = this.baseConfig
+      //根据粒子下落位置判断是否进行消逝动画
+      nodeList.forEach(d => {
+        if (d.y > particleFallEndThreshHold && (!d.isTweenState)) {
+          this._generateParticleFadeTween(d)
+        }
+      })
+      //对已标记的粒子进行垃圾回收
+      this.simulationConfig.nodeList = nodeList.filter(d => !d.isPerformed)
+      //重复迭代生成新粒子
+      this._generateParticleData(20)
+    },
+  },
+  watch: {
+    'control.isParticleStart': function (newVal) {
+      if (newVal) {
+        this.$d3.interval(() => {
+          this.adjustParticles()
+        }, 100)
+      }
     }
   },
   mounted () {
@@ -292,13 +367,9 @@ export default {
         let tweenStater = this.generateRandomFlowRoute(this._getRandomIntInclusive(0, randomLaneNum))
         tweenStater.start()
       }
-      //simulation粒子数据生成
-      this._generateParticleData();
-      this.initParticleSimulation();
       this.renderCanvasBackground('flow-future-2-current')
-
     }, 100)
-
+    this.initParticleSimulation()
     this.initAnimate()
   }
 }
