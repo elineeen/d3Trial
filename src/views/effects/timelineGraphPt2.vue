@@ -122,24 +122,20 @@ export default {
       return canvas
     },
     /**
-     * current 2 past 部分粒子绘制
+     * 批量绘制，优化了同时粒子最大渲染数量
      **/
-    _drawParticleFromNode (canvasID, nodeData) {
-      let { x, y, r } = nodeData, { particleFallStartThreshHold } = this.baseConfig
-      if (y > particleFallStartThreshHold) {
-        const ctx = document.getElementById(canvasID).getContext('2d')
-        ctx.strokeStyle = `rgb(40,40,40,${nodeData.opacity})`
-        ctx.beginPath()
-        ctx.fillStyle = `rgb(40,40,40,${nodeData.opacity})`
-        ctx.arc(x, y, r, 0, 2 * Math.PI, false)
-        ctx.stroke()
-        ctx.fill()
-        ctx.beginPath()
-        ctx.fillStyle = `rgb(255, 255, 255, 1)`
-        ctx.arc(x, y, r * 0.8, 0, 2 * Math.PI, false)
-        ctx.stroke()
-        ctx.fill()
-      }
+    _batchDrawParticleFromNode (canvasID, nodeList) {
+      const ctx = document.getElementById(canvasID).getContext('2d'), { particleFallStartThreshHold } = this.baseConfig
+      nodeList.forEach((nodeData) => {
+        const { x, y, r } = nodeData
+        if (y > particleFallStartThreshHold) {
+          ctx.strokeStyle = `rgb(40,40,40,${nodeData.opacity})`
+          ctx.fillStyle = `rgb(40,40,40,${nodeData.opacity})`
+          ctx.beginPath()
+          ctx.arc(x, y, r, 0, 2 * Math.PI, false)
+          ctx.fill()
+        }
+      })
     },
     renderCanvasBackground (canvasID) {
       const { width, height } = this.baseConfig
@@ -184,7 +180,8 @@ export default {
         TWEEN.update()
         //点绘制必须实时animate中重新渲染第二部分画布
         this.renderSimulationBackground('flow-future-2-current')
-        this.simulationConfig?.simulation?.nodes().forEach(d => this._drawParticleFromNode('flow-future-2-current', d))
+        this._batchDrawParticleFromNode('flow-future-2-current',this.simulationConfig?.simulation?.nodes())
+       // this.simulationConfig?.simulation?.nodes().forEach(d => this._drawParticleFromNode('flow-future-2-current', d))
       }
       animate()
     },
@@ -288,7 +285,7 @@ export default {
       const simulation = this.$d3.forceSimulation(nodeList)
           .alphaTarget(0.9) // stay hot
           .velocityDecay(0.2) // low friction
-          //similation forceX.x可以调节每个node速度上水平方向，官方文档上不推荐使用负值的force，实际使用后也会发现负值速度进行similation与正常值不对称的问题
+          //simulation forceX.x可以调节每个node速度上水平方向，官方文档上不推荐使用负值的force，实际使用后也会发现负值速度进行simulation与正常值不对称的问题
           .force('x', this.$d3.forceX().strength(d => d.y > particleFallSpreadThreshHold ? d.xForce : 0).x(d => d.direction))
           .force('y', this.$d3.forceY().strength(d => this.particleYSpeedScale(d.y)))
       // fun mode if you wanna try it
@@ -346,7 +343,7 @@ export default {
       //对已标记的粒子进行垃圾回收
       this.simulationConfig.nodeList = nodeList.filter(d => !d.isPerformed)
       //重复迭代生成新粒子
-      this._generateParticleData(20)
+      this._generateParticleData(50)
     },
   },
   watch: {
