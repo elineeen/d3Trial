@@ -32,7 +32,7 @@ besides i also want to use webworker to reduce the cost of the simulation comput
 so i make a little effort on writing webworker, but debugging web worker in chrome is really a suffering
 and the result is not ideal.
 Still, i regard it as a good practice, you can see the instance from the link above 
-and visit the src code from https://github.com/elineeen/d3Trial/blob/master/src/views/effects/timeline.worker.js
+and visit the src code from https://github.com/elineeen/d3Trial/blob/master/src/views/effects/timline.worker.js
 0811
 Due to performance matter , i still decided to use canvas to render the "current 2 past" part
 the d3 simulation support smoothly running about 2000+ particle with vec calc & state change(you can try adding more particles if ur gpu is good enough),
