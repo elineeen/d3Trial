@@ -19,6 +19,7 @@ import transitionCounter from "../views/effects/counter";
 import cellularNetworkFlow from "../views/effects/cellular-network-flow";
 import timelineGraph from "../views/effects/timelineGraph";
 import timelineGraphComplete from "../views/effects/timelineGraphPt2";
+import timelineGraphWorker from "../views/effects/timelineGraphWorker";
 Vue.use(VueRouter)
 
   const routes = [
@@ -111,6 +112,11 @@ Vue.use(VueRouter)
               path: '/timelineGraphComplete',
               name: 'timelineGraphComplete',
               component: timelineGraphComplete
+          },
+          {
+              path: '/timelineGraphWorker',
+              name: 'timelineGraphWorker',
+              component: timelineGraphWorker
           },
 
       ]

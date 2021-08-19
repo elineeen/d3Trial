@@ -1,10 +1,43 @@
 module.exports = {
-  "transpileDependencies": [
-    "vuetify"
+  'transpileDependencies': [
+    'vuetify'
   ],
   outputDir: 'dist', publicPath: process.env.NODE_ENV === 'production' ? '/d3Trial/' : '/',
-  productionSourceMap:false,
+  productionSourceMap: false,
+  // chainWebpack: config => {
+  //   config.module
+  //     .rule('worker')
+  //     .test(/\.worker\.js$/)
+  //     .use('worker')
+  //     .loader('worker-loader')
+  //     .options({
+  //       inline: 'fallback' // 开启内联模式，将chunk的内容转换为Blob对象内嵌到代码中。
+  //     })
+  //   config.output.globalObject(
+  //     'this'
+  //   )
+  // },
   configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.worker\.js$/,
+          use: {
+            loader: "worker-loader",
+            options:{
+              filename:'workerName.[hash].js',
+              inline:'fallback'
+            }
+          },
+          // use: {
+          //   loader: "worker-loader" ,
+          //   options: { inline: true, name: 'workerName.[hash].js' }
+          // },
+
+        },
+      ],
+    },
+
     optimization: {
       splitChunks: {
         chunks: 'all',
@@ -28,6 +61,7 @@ module.exports = {
       }
     }
   },
+  parallel: false,
   devServer: {
     public: '127.0.0.1:8080',
   }
