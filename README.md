@@ -51,7 +51,7 @@ it's only on halfway until finish, and i'll try different forms rather than canv
 Now i found it MUCH MORE hard to get ideas to create original works rather than just immitating existing visualizations.
 ```
 
-### [cellular flow](https://elineeen.github.io/d3Trial/#/timeline)
+### [cellular flow](https://elineeen.github.io/d3Trial/#/cellularEffect)
 original work(imitate the canvas head banner from https://eruda.liriliri.io/)
 ```
 Back to 2d again lol, this work is fairly intestering in visual effects, but i suppose there's a lot of detail work on the line effect
