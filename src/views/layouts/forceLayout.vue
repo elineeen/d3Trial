@@ -107,9 +107,9 @@
                     .attr("fill", d => d.children ? null : "#000")
                     .attr("stroke", d => d.children ? null : "#fff")
                     .attr("r", 3.5)
-                    .on('click',(e)=>{
-                        this._removeNodes(e)
-                        this._removeRelatedLinks(e)
+                    .on('click',(e,d)=>{
+                        this._removeNodes(d)
+                        this._removeRelatedLinks(d)
                     })
                 return {simulation,node,link}
             },
