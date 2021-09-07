@@ -170,8 +170,10 @@ export default {
       ctx.fillStyle = 'white'
       ctx.fillRect(startPoint[0] + 5, startPoint[1] + 5, width - 10, 50)
       ctx.fillStyle = 'black'
+      ctx.textAlign='center'
+      ctx.textBaseline='middle'
       ctx.font = '56px Avenir,Helvetica'
-      ctx.fillText(text, width / 2 - 100, startPoint[1] + 50)
+      ctx.fillText(text, width / 2 , startPoint[1] + 35)
       return true
     },
     initAnimate () {
